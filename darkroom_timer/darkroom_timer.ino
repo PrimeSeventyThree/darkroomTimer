@@ -83,7 +83,7 @@ unsigned long debounceDelay = 50;    // the debounce time; increase if the outpu
 
 const unsigned long maxTimerDelay = 99000; //maximum timer delay is 99 seconds
 long timerDelay = 0;
-char tempString[100];
+char tempString[26];
 int tempIncrement = 0;
 
 int encoderButtonState;             // the current reading from the input pin
@@ -110,10 +110,6 @@ void setup() {
     delay(250);
   }
   lcd.backlight(); // finish with backlight on
-
-  //  // Switch on the backlight
-  //  lcd.setBacklightPin(BACK_pin, POSITIVE);
-  //  lcd.setBacklight(128);
 
   for (nb = 0; nb < 7; nb++ ) {                 // create 8 custom characters
     for (bc = 0; bc < 8; bc++) bb[bc] = pgm_read_byte( &custom[nb][bc] );
@@ -171,9 +167,9 @@ void loop() {
   firstDigit = floor((timerDelay - thirdDigit * 10000 - secondDigit * 1000) / increment);
 
   if (se != osec) {
-
-    sprintf(tempString,"digits to display: ", "%llu, %llu, %llu", se,osec,firstDigit);
-    Serial.println(tempString);
+//Serial.println(thirdDigit);
+//Serial.println(secondDigit);
+//Serial.println(firstDigit);
 
     if (thirdDigit != 0) {
       printNum(thirdDigit, lcdOffset);
