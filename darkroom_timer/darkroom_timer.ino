@@ -289,36 +289,34 @@ int freeRam(void) {
 // startRelay
 
 void startRelay() {
-static unsigned long duration = 100000; // 100 milliseconds
+  static unsigned long duration = 100000; // 100 milliseconds
   if (lampIsOn) {
     Serial.print("turn ON an enlander's lamp\n");
     digitalWrite(relayOnePin, HIGH);
     lampIsOn = false;
-//    lcd.noBacklight();
+    //    lcd.noBacklight();
   }
-  if ((_micro = micros()) - time > duration ) { 
-     
-     // check to see if micros() has rolled over, if not,
-     // then increment "time" by duration
-      _micro < time ? time = _micro : time += duration;
-       
+  if ((_micro = micros()) - time > duration ) {
+
+    // check to see if micros() has rolled over, if not,
+    // then increment "time" by duration
+    _micro < time ? time = _micro : time += duration;
+
     timerDelay = timerDelay - increment;
     if (timerDelay <= 0) {
-      Serial.print("turn OFF an enlander's lamp\n");
-      startExposure = false;
-      lampIsOn = false;
       timerDelay = storedTimerDelay;
-      digitalWrite(relayOnePin, LOW);
-//      lcd.backlight();
+      resetTimer();
     }
   }
 }
 
 void resetTimer() {
-  Serial.print("Exposure Timer Reset. \n");
+  Serial.println("Exposure Timer Reset.");
+  Serial.println("turn OFF an enlander's lamp");
   startExposure = false;
   lampIsOn = false;
-  timerDelay = 0;
+  digitalWrite(relayOnePin, LOW);
+  lcd.backlight();
 }
 
 
@@ -358,6 +356,7 @@ void inputHandler() {
       //              Serial.print("\nEncoder Button changed state\n");
 
       if (encoderButtonState == LOW) {
+        timerDelay = 0;
         resetTimer();
       }
     }
