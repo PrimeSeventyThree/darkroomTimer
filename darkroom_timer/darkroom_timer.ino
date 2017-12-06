@@ -83,6 +83,7 @@ unsigned long debounceDelay = 50;    // the debounce time; increase if the outpu
 
 const unsigned long maxTimerDelay = 99000; //maximum timer delay is 99 seconds
 long timerDelay = 0;
+long storedTimerDelay = 0;
 char tempString[26];
 int tempIncrement = 0;
 
@@ -306,7 +307,7 @@ static unsigned long duration = 100000; // 100 milliseconds
       Serial.print("turn OFF an enlander's lamp\n");
       startExposure = false;
       lampIsOn = false;
-      timerDelay = 0;
+      timerDelay = storedTimerDelay;
       digitalWrite(relayOnePin, LOW);
 //      lcd.backlight();
     }
@@ -369,6 +370,7 @@ void inputHandler() {
         startExposure = true; //RELAY
         lampIsOn = true; // signals to turn on the lamp
         time = micros(); // hwd added so timer will reset if stopped and then started
+        storedTimerDelay = timerDelay;
       }
 
     }
