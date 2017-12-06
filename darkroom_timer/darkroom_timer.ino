@@ -91,8 +91,13 @@ int lastEncoderButtonState = LOW;   // the previous reading from the input pin
 int timerButtonState;             // the current reading from the input pin
 int lastTimerButtonState = LOW;   // the previous reading from the input pin
 
-boolean startExposure = false;
-boolean lampIsOn = false; //stores an enlarger's lamp state
+volatile boolean startExposure = false;
+volatile boolean lampIsOn = false; //stores an enlarger's lamp state
+
+
+unsigned long _micro, time = micros();
+
+
 //*****************************************************************************************//
 //                                      Initial Setup
 //*****************************************************************************************//
@@ -167,9 +172,9 @@ void loop() {
   firstDigit = floor((timerDelay - thirdDigit * 10000 - secondDigit * 1000) / increment);
 
   if (se != osec) {
-//Serial.println(thirdDigit);
-//Serial.println(secondDigit);
-//Serial.println(firstDigit);
+    //Serial.println(thirdDigit);
+    //Serial.println(secondDigit);
+    //Serial.println(firstDigit);
 
     if (thirdDigit != 0) {
       printNum(thirdDigit, lcdOffset);
@@ -283,22 +288,28 @@ int freeRam(void) {
 // startRelay
 
 void startRelay() {
-
+static unsigned long duration = 100000; // 100 milliseconds
   if (lampIsOn) {
     Serial.print("turn ON an enlander's lamp\n");
     digitalWrite(relayOnePin, HIGH);
     lampIsOn = false;
-    lcd.noBacklight();
+//    lcd.noBacklight();
   }
-  timerDelay = timerDelay - increment;
-  delay(increment);
-  if (timerDelay <= 0) {
-    Serial.print("turn OFF an enlander's lamp\n");
-    startExposure = false;
-    lampIsOn = false;
-    timerDelay = 0;
-    digitalWrite(relayOnePin, LOW);
-    lcd.backlight();
+  if ((_micro = micros()) - time > duration ) { 
+     
+     // check to see if micros() has rolled over, if not,
+     // then increment "time" by duration
+      _micro < time ? time = _micro : time += duration;
+       
+    timerDelay = timerDelay - increment;
+    if (timerDelay <= 0) {
+      Serial.print("turn OFF an enlander's lamp\n");
+      startExposure = false;
+      lampIsOn = false;
+      timerDelay = 0;
+      digitalWrite(relayOnePin, LOW);
+//      lcd.backlight();
+    }
   }
 }
 
@@ -357,6 +368,7 @@ void inputHandler() {
         Serial.print("\nTimer Button is Pressed\n");
         startExposure = true; //RELAY
         lampIsOn = true; // signals to turn on the lamp
+        time = micros(); // hwd added so timer will reset if stopped and then started
       }
 
     }
