@@ -13,13 +13,16 @@
 #define revision 3
 //**************************************************************************************************
 
+#define DEBUG                        // Comment out this line to disable all debug output before uploading final sketch to a board
+#include "DebugUtils.h"              // Debug Utils
+
 #include <MD_REncoder.h>             // Rotary Encoder
 
 #include <avr/pgmspace.h>            // for memory storage in program space
 
 #include <Wire.h>
 #include <LCD.h>                     // Standard lcd library
-#include <LiquidCrystal_I2C.h>       // library for I@C interface
+#include <LiquidCrystal_I2C.h>       // library for I2C interface
 
 #define I2C_ADDR  0x27               // address found from I2C scanner
 #define RS_pin    0                  // pin configuration for LCM1602 interface module
@@ -37,7 +40,7 @@
 LiquidCrystal_I2C lcd(I2C_ADDR, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
 //Pins for the LCD are SCL A5, SDA A4
 
-const char custom[][8] PROGMEM = {
+const byte custom[][8] PROGMEM = {
   {0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0F, 0x1F},      // char 1: bottom right triangle
   {0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F},      // char 2: bottom block
   {0x00, 0x00, 0x00, 0x00, 0x10, 0x1C, 0x1E, 0x1F},      // char 3: bottom left triangle
@@ -48,7 +51,7 @@ const char custom[][8] PROGMEM = {
   // room for another one!
 };
 
-const char bn[][30] PROGMEM = {                          // organized by row
+const byte bn[][30] PROGMEM = {                          // organized by row
   //         0               1               2               3               4              5               6                7               8               9
   {0x01, 0x02, 0x03, 0x01, 0x02, 0xFE, 0x01, 0x02, 0x03, 0x01, 0x02, 0x03, 0x02, 0xFE, 0x02, 0x02, 0x02, 0x02, 0x01, 0x02, 0x03, 0x02, 0x02, 0x02, 0x01, 0x02, 0x03, 0x01, 0x02, 0x03},
   {0xFF, 0xFE, 0xFF, 0xFE, 0xFF, 0xFE, 0x01, 0x02, 0xFF, 0xFE, 0x02, 0xFF, 0xFF, 0x02, 0xFF, 0xFF, 0x02, 0x02, 0xFF, 0x02, 0x03, 0xFE, 0x01, 0x07, 0xFF, 0x02, 0xFF, 0xFF, 0xFE, 0xFF},
@@ -81,7 +84,7 @@ const int relayTwoPin = 8;                   // relay number Two control pin
 unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
 unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers
 unsigned long turnLampOnDelay = 2000;         //turn the lamp ON after the set button is pressed atleast for 2 seconds
-const unsigned long maxTimerDelay = 99000;    //maximum timer delay is 99 seconds
+const long maxTimerDelay = 99000;             //maximum timer delay is 99 seconds
 long timerDelay = 0;
 long storedTimerDelay = 0;
 char tempString[26];
@@ -176,9 +179,9 @@ void loop() {
   firstDigit = floor((timerDelay - thirdDigit * 10000 - secondDigit * 1000) / increment);
 
   if (se != osec) {
-    //Serial.println(thirdDigit);
-    //Serial.println(secondDigit);
-    //Serial.println(firstDigit);
+    //DEBUG_PRINT(thirdDigit);
+    //DEBUG_PRINT(secondDigit);
+    //DEBUG_PRINT(firstDigit);
 
     if (thirdDigit != 0) {
       printNum(thirdDigit, lcdOffset);
@@ -250,11 +253,11 @@ void readEncoder () {
     }
 #endif
     if (x == DIR_CCW) {//if Encoder is moved forwards (CW), advance seconds by defined increment value
-      Serial.print("CCW ");
+      DEBUG_PRINT("CCW ");
 
       timerDelay = timerDelay + tempIncrement;
     } else if (x != DIR_NONE) {
-      Serial.print("CW ");
+      DEBUG_PRINT("CW ");
       timerDelay = timerDelay - tempIncrement;//if seconds were not = 0, then decrease seconds value by the increment value
       if (timerDelay < 0) {
         timerDelay = 0;
@@ -264,8 +267,8 @@ void readEncoder () {
       timerDelay = maxTimerDelay;
     }
 
-    Serial.print("timerDelay: ");
-    Serial.println(timerDelay);
+    DEBUG_PRINT("timerDelay: ");
+    DEBUG_PRINT(timerDelay);
   }
 }
 // ********************************************************************************** //
@@ -292,7 +295,7 @@ int freeRam(void) {
 
 void turnLampOn() {
   if (lampIsOn) {
-    Serial.println("Turning the lamp ON");
+    DEBUG_PRINT("Turning the lamp ON");
     pinMode(relayOnePin, OUTPUT);
     digitalWrite(relayOnePin, HIGH);
     lampIsOn = false;
@@ -305,7 +308,7 @@ void turnLampOn() {
 void startRelay() {
   static unsigned long duration = 100000; // 100 milliseconds
   if (lampIsOn) {
-    Serial.print("turn ON an enlander's lamp\n");
+    DEBUG_PRINT("turn ON an enlander's lamp\n");
     digitalWrite(relayOnePin, HIGH);
     lampIsOn = false;
     lcd.noBacklight();
@@ -327,8 +330,8 @@ void startRelay() {
 // resetTimer
 
 void resetTimer() {
-  Serial.println("Exposure Timer Reset.");
-  Serial.println("turn OFF an enlander's lamp");
+  DEBUG_PRINT("Exposure Timer Reset.");
+  DEBUG_PRINT("turn OFF an enlander's lamp");
   startExposure = false;
   lampIsOn = false;
   timerButtonIsPressed = false;
@@ -349,34 +352,23 @@ void showInitScreen() {
 void inputHandler() {
 
   int encoderButtonPinValue = digitalRead(encoderButtonPin);
-  //                  Serial.print("\nEncoder Button  value ");
-  //                  Serial.print(encoderButtonPinValue);
-  //                  Serial.print("\n");
-
   int timerButtonPinValue = digitalRead(timerButtonPin);
-  //  Serial.print("\Timer Button  value ");
-  //  Serial.print(timerButtonPinValue);
-  //  Serial.print("\n");
 
   // If the switch changed, due to noise or pressing:
   if (encoderButtonPinValue != lastEncoderButtonState || timerButtonPinValue != lastTimerButtonState) {
     // reset the debouncing timer
-    //    Serial.print("reset the debouncing timer\n");
     if (!timerButtonIsPressed) {
       lastDebounceTime = millis();
     }
   }
-  //        Serial.println((millis() - lastDebounceTime));
 
   if ((millis() - lastDebounceTime) > debounceDelay) {
     // whatever the reading is at, it's been there for longer than the debounce
     // delay, so take it as the actual current state:
-    //             Serial.print("\nEncoder Button changed state\n");
 
     // if the encoder button state has changed:
     if (encoderButtonPinValue != encoderButtonState) {
       encoderButtonState = encoderButtonPinValue;
-      //              Serial.print("\nEncoder Button changed state\n");
       if (encoderButtonState == LOW) {
         timerDelay = 0;
         resetTimer();
@@ -392,7 +384,6 @@ void inputHandler() {
     }
 
     if (timerButtonIsPressed && timerButtonState == HIGH) {
-//      Serial.println((millis() - lastDebounceTime));
       storedTimerDelay = timerDelay;
       lampIsOn = true; // signals to turn on the lamp
       time = micros(); // hwd added so timer will reset if stopped and then started
@@ -400,14 +391,14 @@ void inputHandler() {
 
 
       if (((millis() - lastDebounceTime) < turnLampOnDelay)) {
-        Serial.println("Timer Button is Released.");
+        DEBUG_PRINT("Timer Button is Released.");
         //        if (timerButtonIsPressed) {
-        Serial.println("Staring Exposure.");
+        DEBUG_PRINT("Staring Exposure.");
         startExposure = true; //RELAY
       } else {
         startExposure = false;
-        Serial.print("Timer Button is Pressed.");
-        Serial.println((millis() - lastDebounceTime));
+        DEBUG_PRINT("Timer Button is Pressed.");
+        DEBUG_PRINT((millis() - lastDebounceTime));
         //      lastDebounceTime = millis();
         //      timerButtonIsPressed = true;
         turnLampOn();
