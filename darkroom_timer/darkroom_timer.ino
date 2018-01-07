@@ -10,7 +10,7 @@
 //**************************************************************************************************
 
 #define build 1
-#define revision 3
+#define revision 4
 //**************************************************************************************************
 
 #define DEBUG                        // Comment out this line to disable all debug output before uploading final sketch to a board
@@ -20,6 +20,8 @@
 
 #include <avr/pgmspace.h>            // for memory storage in program space
 
+
+#include <EEPROM.h>                  // to store/read data in EEPROM
 #include <Wire.h>
 #include <LCD.h>                     // Standard lcd library
 #include <LiquidCrystal_I2C.h>       // library for I2C interface
@@ -68,7 +70,7 @@ byte hr, mn, se, osec;
 long firstDigit, secondDigit, thirdDigit;
 
 // set up encoder object
-MD_REncoder R = MD_REncoder(2, 3);
+MD_REncoder rotaryEncoder = MD_REncoder(2, 3);
 
 
 // VARIABLES:
@@ -83,8 +85,10 @@ const int relayTwoPin = 8;                   // relay number Two control pin
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
 unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers
-unsigned long turnLampOnDelay = 2000;         //turn the lamp ON after the set button is pressed atleast for 2 seconds
-const long maxTimerDelay = 99000;             //maximum timer delay is 99 seconds
+unsigned long turnLampOnDelay = 2000;         // turn the lamp ON after the set button is pressed atleast for 2 seconds
+const long maxTimerDelay = 99000;             // maximum timer delay is 99 seconds
+const unsigned long duration = 100000;        // 100 milliseconds timer increment (in microseconds)
+
 long timerDelay = 0;
 long storedTimerDelay = 0;
 char tempString[26];
@@ -95,12 +99,13 @@ int lastEncoderButtonState = LOW;             // the previous reading from the i
 int timerButtonState;                         // the current reading from the input pin
 int lastTimerButtonState = LOW;               // the previous reading from the input pin
 
-volatile boolean startExposure = false; 
-volatile boolean lampIsOn = false;             //stores an enlarger's lamp state
-volatile boolean timerButtonIsPressed = false; //stores a timer button state
+volatile boolean startExposure = false;
+volatile boolean lampIsOn = false;            // stores an enlarger's lamp state
+volatile boolean timerButtonIsPressed = false;// stores a timer button state
 
 unsigned long _micro, time = micros();
 
+int eeAddress = 0;                            // Location we want the timer settings to be stored.
 
 //*****************************************************************************************//
 //                                      Initial Setup
@@ -145,16 +150,21 @@ void setup() {
   showInitScreen();
   printNum(0, lcdOffset + 8);
 
-  R.begin();
+  //read stored exposure time
+  EEPROM.get(eeAddress, timerDelay);
 
+  rotaryEncoder.begin();
   pinMode(encoderButtonPin, INPUT_PULLUP);
   pinMode(timerButtonPin, INPUT_PULLUP);
+
 
   //lamp test
   pinMode(relayOnePin, OUTPUT);
   digitalWrite(relayOnePin, HIGH);
   delay(1000);
   digitalWrite(relayOnePin, LOW);
+
+
 }
 
 //*****************************************************************************************//
@@ -243,13 +253,13 @@ void printDot(byte leftAdjust) {
 
 void readEncoder () {
   // seconds = constrain (seconds, -1, 60); //constrains the seconds value between -1 and 60
-  uint8_t x = R.read();
+  uint8_t x = rotaryEncoder.read();
   tempIncrement = increment;
   if (x)
   {
 #if ENABLE_SPEED
-    if (R.speed() > 4) {
-      tempIncrement = tempIncrement * R.speed();
+    if (rotaryEncoder.speed() > 4) {
+      tempIncrement = tempIncrement * rotaryEncoder.speed();
     }
 #endif
     if (x == DIR_CCW) {//if Encoder is moved forwards (CW), advance seconds by defined increment value
@@ -306,7 +316,6 @@ void turnLampOn() {
 // startRelay
 
 void startRelay() {
-  static unsigned long duration = 100000; // 100 milliseconds
   if (lampIsOn) {
     DEBUG_PRINT("turn ON an enlander's lamp\n");
     digitalWrite(relayOnePin, HIGH);
@@ -385,6 +394,7 @@ void inputHandler() {
 
     if (timerButtonIsPressed && timerButtonState == HIGH) {
       storedTimerDelay = timerDelay;
+      EEPROM.put(eeAddress, storedTimerDelay);
       lampIsOn = true; // signals to turn on the lamp
       time = micros(); // hwd added so timer will reset if stopped and then started
       timerButtonIsPressed = false;
@@ -392,7 +402,6 @@ void inputHandler() {
 
       if (((millis() - lastDebounceTime) < turnLampOnDelay)) {
         DEBUG_PRINT("Timer Button is Released.");
-        //        if (timerButtonIsPressed) {
         DEBUG_PRINT("Staring Exposure.");
         startExposure = true; //RELAY
       } else {
