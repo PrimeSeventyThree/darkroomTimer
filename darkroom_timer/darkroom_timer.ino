@@ -1,20 +1,38 @@
 /*
  * File: darkroom_timer.ino
  * Project: darkroom_timer
- * File Created: Wednesday, 21st December 2017 10:40:30 am
- * Author: Andrei Grichine (andrei@generalharmonics.com)
+ * File Created: Wednesday, 21st July 2021 10:40:30 am
+ * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Thursday, 22nd July 2021 12:09:22 pm
- * Modified By: Andrei Grichine (andrei@generalharmonics.com>)
+ * Last Modified: Wednesday, 9th November 2022 8:29:14 pm
+ * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
- * Copyright 2019 - 2021, General Harmonics Corporation. All Rights Reserved.
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential.
+ * Copyright 2019 - 2022, Prime73 Inc. MIT License
+ *
+ * Copyright (c) 2022 Prime73 Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  * -----
  * HISTORY:
  */
 
-//**************************************************************************************************
+//********************************************************************************
 //                                 DARKROOM EXPOSURE TIMER
 //                                 Andrei Grichine, December 2017
 //
@@ -23,16 +41,16 @@
 //                                 http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/
 //                                 Adrian Jones, February 2015
 //
-//**************************************************************************************************
+//********************************************************************************
 
 #define build 1
-#define revision 4
-//**************************************************************************************************
+#define revision 5
+//********************************************************************************
 
 #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 #include "DebugUtils.h" // Debug Utils
 
-#include <MD_REncoder.h> // Rotary Encoder
+#include <MD_REncoder/MD_REncoder.h>> // Rotary Encoder
 
 #include <avr/pgmspace.h> // for memory storage in program space
 
@@ -55,7 +73,7 @@
 #define LED_ON 1
 
 LiquidCrystal_I2C lcd(I2C_ADDR, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
-//Pins for the LCD are SCL A5, SDA A4
+// Pins for the LCD are SCL A5, SDA A4
 
 const byte custom[][8] PROGMEM = {
     {0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0F, 0x1F}, // char 1: bottom right triangle
@@ -78,8 +96,8 @@ const byte bn[][30] PROGMEM = { // organized by row
 byte col, row, nb = 0, bc = 0; // general
 byte bb[8];                    // byte buffer for reading from PROGMEM
 
-//#include "RTClib.h"
-//RTC_Millis RTC;
+// #include "RTClib.h"
+// RTC_Millis RTC;
 byte hr, mn, se, osec;
 long firstDigit, secondDigit, thirdDigit;
 
@@ -87,8 +105,8 @@ long firstDigit, secondDigit, thirdDigit;
 MD_REncoder rotaryEncoder = MD_REncoder(2, 3);
 
 // VARIABLES:
-int increment = 100;            //change this value to change the milliseconds increment when setting the timer
-const int lcdOffset = 3;        //sets the display position for the very left BIG digit (we use only three digits for now)
+int increment = 100;            // change this value to change the milliseconds increment when setting the timer
+const int lcdOffset = 3;        // sets the display position for the very left BIG digit (we use only three digits for now)
 const int encoderButtonPin = 4; // the number of the pushbutton pin
 const int timerButtonPin = 6;   // the number of the pushbutton pin
 const int relayOnePin = 7;      // relay number One control pin
@@ -166,14 +184,14 @@ void setup()
   showInitScreen();
   printNum(0, lcdOffset + 8);
 
-  //read stored exposure time
+  // read stored exposure time
   EEPROM.get(eeAddress, timerDelay);
 
   rotaryEncoder.begin();
   pinMode(encoderButtonPin, INPUT_PULLUP);
   pinMode(timerButtonPin, INPUT_PULLUP);
 
-  //lamp test
+  // lamp test
   pinMode(relayOnePin, OUTPUT);
   digitalWrite(relayOnePin, HIGH);
   delay(1000);
@@ -207,9 +225,9 @@ void loop()
 
   if (se != osec)
   {
-    //DEBUG_PRINT(thirdDigit);
-    //DEBUG_PRINT(secondDigit);
-    //DEBUG_PRINT(firstDigit);
+    // DEBUG_PRINT(thirdDigit);
+    // DEBUG_PRINT(secondDigit);
+    // DEBUG_PRINT(firstDigit);
 
     if (thirdDigit != 0)
     {
@@ -304,7 +322,7 @@ void readEncoder()
     }
 #endif
     if (x == DIR_CCW)
-    { //if Encoder is moved forwards (CW), advance seconds by defined increment value
+    { // if Encoder is moved forwards (CW), advance seconds by defined increment value
       DEBUG_PRINT("CCW ");
 
       timerDelay = timerDelay + tempIncrement;
@@ -312,7 +330,7 @@ void readEncoder()
     else if (x != DIR_NONE)
     {
       DEBUG_PRINT("CW ");
-      timerDelay = timerDelay - tempIncrement; //if seconds were not = 0, then decrease seconds value by the increment value
+      timerDelay = timerDelay - tempIncrement; // if seconds were not = 0, then decrease seconds value by the increment value
       if (timerDelay < 0)
       {
         timerDelay = 0;
@@ -468,7 +486,7 @@ void inputHandler()
       {
         DEBUG_PRINT("Timer Button is Released.");
         DEBUG_PRINT("Staring Exposure.");
-        startExposure = true; //RELAY
+        startExposure = true; // RELAY
       }
       else
       {
