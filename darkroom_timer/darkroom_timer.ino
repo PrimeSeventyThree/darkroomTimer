@@ -119,7 +119,7 @@ unsigned long lastDebounceTime = 0;    // the last time the output pin was toggl
 unsigned long debounceDelay = 50;      // the debounce time; increase if the output flickers
 unsigned long turnLampOnDelay = 2000;  // turn the lamp ON after the set button is pressed atleast for 2 seconds
 const long maxTimerDelay = 99000;      // maximum timer delay is 99 seconds
-const unsigned long duration = 100000; // 100 milliseconds timer increment (in microseconds)
+const unsigned long duration = increment*1000; // timer increment in microseconds
 
 long timerDelay = 0;
 long storedTimerDelay = 0;
