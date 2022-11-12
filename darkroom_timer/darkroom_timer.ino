@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 11:22:55 am
+ * Last Modified: Saturday, 12th November 2022 3:00:11 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -102,24 +102,25 @@ byte hr, mn, se, osec;
 long firstDigit, secondDigit, thirdDigit;
 
 // VARIABLES:
-//Rotary's encoder middle pin should be connected to a ground
+// Rotary's encoder middle pin should be connected to a ground
+// flip left and right pins to change rotation directions to modify the timer delay
 const int rotaryEncoderPinOne = 2; // left pin
 const int rotaryEncoderPinTwo = 3; // right pin
 
 const int encoderButtonPin = 4; // rotary encoder's push button connection pin (resets timer to 0)
 
-int increment = 100;            // change this value to change the milliseconds increment when setting the timer
-const int lcdOffset = 3;        // sets the display position for the very left BIG digit (we use only three digits for now)
-const int timerButtonPin = 6;   // timer start push button connectionpin
-const int relayOnePin = 7;      // relay number One control pin
+int increment = 100;          // change this value to change the milliseconds increment when setting the timer
+const int lcdOffset = 3;      // sets the display position for the very left BIG digit (we use only three digits for now)
+const int timerButtonPin = 6; // timer start push button connectionpin
+const int relayOnePin = 7;    // relay number One control pin
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
-unsigned long lastDebounceTime = 0;    // the last time the output pin was toggled
-unsigned long debounceDelay = 50;      // the debounce time; increase if the output flickers
-unsigned long turnLampOnDelay = 2000;  // turn the lamp ON after the set button is pressed atleast for 2 seconds
-const long maxTimerDelay = 99000;      // maximum timer delay is 99 seconds
-const unsigned long duration = increment*1000; // timer increment in microseconds
+unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
+unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers
+unsigned long toggleEnlargerLampDelay = 2000; // turn the lamp ON after the set button is pressed atleast for 2 seconds
+const long maxTimerDelay = 99000;             // maximum timer delay is 99 seconds
+const unsigned long duration = 100000;        // timer increment in microseconds
 
 long timerDelay = 0;
 long storedTimerDelay = 0;
@@ -133,6 +134,7 @@ int lastTimerButtonState = LOW;   // the previous reading from the input pin
 
 volatile boolean startExposure = false;
 volatile boolean lampIsOn = false;             // stores an enlarger's lamp state
+volatile boolean isEnlargerLampOn = false;     // stores an enlarger's lamp state in manual mode (Enlarger is turned on/off manually)
 volatile boolean timerButtonIsPressed = false; // stores a timer button state
 
 unsigned long _micro, time = micros();
@@ -144,14 +146,14 @@ MD_REncoder rotaryEncoder = MD_REncoder(rotaryEncoderPinOne, rotaryEncoderPinTwo
 // Pins for the LCD are SCL A5, SDA A4 for Arduino UNO (check your hardware specs to see which pins are I2C bus)
 LiquidCrystal_I2C lcd(I2C_ADDR, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
 
-
 //*****************************************************************************************//
 //                                      Initial Setup
 //*****************************************************************************************//
 void setup()
 {
-  Serial.begin(57600);
-  while (!Serial); // Waiting for Serial Monitor
+  Serial.begin(115200);
+  while (!Serial)
+    ; // Waiting for Serial Monitor
   randomSeed(analogRead(0));
   //  RTC.begin(DateTime(__DATE__, __TIME__));
   lcd.begin(20, 4);
@@ -330,23 +332,24 @@ void readEncoder()
     }
 #endif
     if (x == DIR_CCW)
-    { // if Encoder is moved forwards (CW), advance seconds by defined increment value
-      DEBUG_PRINT("CCW ");
-
-      timerDelay = timerDelay + tempIncrement;
-    }
-    else if (x != DIR_NONE)
     {
-      DEBUG_PRINT("CW ");
-      timerDelay = timerDelay - tempIncrement; // if seconds value is not = 0, then decrease seconds value by the increment value
-      if (timerDelay < 0)
+      // if Encoder is moved counter clock wise (CCW, i.e. backwards), decrease timer delay by defined increment value
+      DEBUG_PRINT("CCW ");
+      timerDelay = timerDelay - tempIncrement;
+      if (timerDelay < 0) // timer delay can't be less than 0 seconds
       {
         timerDelay = 0;
       }
     }
-    if (timerDelay >= maxTimerDelay)
+    else if (x != DIR_NONE)
     {
-      timerDelay = maxTimerDelay;
+      // if Encoder is moved clock wise (CW, i.e. forward), increase timer delay by defined increment value
+      DEBUG_PRINT("CW ");
+      timerDelay = timerDelay + tempIncrement;
+      if (timerDelay >= maxTimerDelay) // timer delay can't be more than maxTimerDelay (see it's definition above) seconds
+      {
+        timerDelay = maxTimerDelay;
+      }
     }
 
     DEBUG_PRINT("timerDelay: ");
@@ -376,17 +379,18 @@ int freeRam(void)
 //                                      UTILITY ROUTINES
 // ********************************************************************************** //
 
-// turnLampOn()
+// toggleEnlargerLamp()
 
-void turnLampOn()
+void toggleEnlargerLamp()
 {
+  // pinMode(relayOnePin, OUTPUT);
   if (lampIsOn)
   {
     DEBUG_PRINT("Turning an enlander's lamp ON\n");
-    pinMode(relayOnePin, OUTPUT);
     digitalWrite(relayOnePin, HIGH);
-    lampIsOn = false;
     lcd.noBacklight();
+    lampIsOn = false;
+    // isEnlargerLampOn = false;
   }
 }
 
@@ -394,10 +398,9 @@ void turnLampOn()
 
 void startRelay()
 {
-  turnLampOn();
+  toggleEnlargerLamp();
   if ((_micro = micros()) - time > duration)
   {
-
     // check to see if micros() has rolled over, if not,
     // then increment "time" by duration
     _micro < time ? time = _micro : time += duration;
@@ -431,7 +434,7 @@ void showInitScreen()
   printDot(lcdOffset + 7);
   lcd.setCursor(lcdOffset + 12, 3);
   lcd.print(F("SEC"));
-  Serial.print("Darkroom Timer is initialized. Available memory is: ");
+  Serial.print("\nDarkroom Timer is initialized. Available memory is: ");
   Serial.print(freeRam());
   Serial.println(" bytes");
 }
@@ -485,14 +488,16 @@ void inputHandler()
       storedTimerDelay = timerDelay;
       EEPROM.put(eeAddress, storedTimerDelay);
       lampIsOn = true; // signals to turn on the lamp
+      // isEnlargerLampOn = false;
       time = micros(); // hwd added so timer will reset if stopped and then started
       timerButtonIsPressed = false;
 
-      if (((millis() - lastDebounceTime) < turnLampOnDelay))
+      if (((millis() - lastDebounceTime) < toggleEnlargerLampDelay))
       {
         DEBUG_PRINT("Timer Button is Released.");
         DEBUG_PRINT("Staring Exposure.");
         startExposure = true; // RELAY
+        // isEnlargerLampOn = false;
       }
       else
       {
@@ -501,7 +506,8 @@ void inputHandler()
         DEBUG_PRINT((millis() - lastDebounceTime));
         //      lastDebounceTime = millis();
         //      timerButtonIsPressed = true;
-        turnLampOn();
+        // isEnlargerLampOn = false;
+        toggleEnlargerLamp();
       }
     }
   }
