@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 3:13:32 pm
+ * Last Modified: Saturday, 12th November 2022 4:34:34 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -134,9 +134,9 @@ int timerButtonState;             // the current reading from the input pin
 int lastTimerButtonState = LOW;   // the previous reading from the input pin
 
 volatile boolean startExposure = false;
-volatile boolean lampIsOn = false;             // stores an enlarger's lamp state
-volatile boolean isEnlargerLampOn = false;     // stores an enlarger's lamp state in manual mode (Enlarger is turned on/off manually)
-volatile boolean timerButtonIsPressed = false; // stores a timer button state
+volatile boolean turnOnEnlargerLamp = false;         // stores an enlarger's lamp state
+volatile boolean turnManuallyOnEnlargerLamp = false; // stores an enlarger's lamp state in manual mode (Enlarger is turned on/off manually)
+volatile boolean timerButtonIsPressed = false;       // stores a timer button state
 
 unsigned long _micro, time = micros();
 
@@ -385,13 +385,14 @@ int freeRam(void)
 void toggleEnlargerLamp()
 {
   // pinMode(relayOnePin, OUTPUT);
-  if (lampIsOn)
+  if (!turnManuallyOnEnlargerLamp)
+    resetTimer();
+  if (turnOnEnlargerLamp)
   {
     DEBUG_PRINT("Turning an enlarger's lamp ON\n");
     digitalWrite(relayOnePin, HIGH);
     lcd.noBacklight();
-    lampIsOn = false;
-    // isEnlargerLampOn = false;
+    turnOnEnlargerLamp = false;
   }
 }
 
@@ -422,7 +423,8 @@ void resetTimer()
   DEBUG_PRINT("Exposure Timer Reset.");
   DEBUG_PRINT("Turning an enlarger's lamp OFF\n");
   startExposure = false;
-  lampIsOn = false;
+  turnOnEnlargerLamp = false;
+  turnManuallyOnEnlargerLamp = false;
   timerButtonIsPressed = false;
   digitalWrite(relayOnePin, LOW);
   lcd.backlight();
@@ -488,9 +490,8 @@ void inputHandler()
     {
       storedTimerDelay = timerDelay;
       EEPROM.put(eeAddress, storedTimerDelay);
-      lampIsOn = true; // signals to turn on the lamp
-      // isEnlargerLampOn = false;
-      time = micros(); // hwd added so timer will reset if stopped and then started
+      turnOnEnlargerLamp = true; // signals to turn on the lamp
+      time = micros();           // hwd added so timer will reset if stopped and then started
       timerButtonIsPressed = false;
 
       if (((millis() - lastDebounceTime) < toggleEnlargerLampDelay))
@@ -498,7 +499,7 @@ void inputHandler()
         DEBUG_PRINT("Timer Button is Released.");
         DEBUG_PRINT("Staring Exposure.");
         startExposure = true; // RELAY
-        // isEnlargerLampOn = false;
+        turnManuallyOnEnlargerLamp = true;
       }
       else
       {
@@ -507,7 +508,10 @@ void inputHandler()
         DEBUG_PRINT((millis() - lastDebounceTime));
         //      lastDebounceTime = millis();
         //      timerButtonIsPressed = true;
-        // isEnlargerLampOn = false;
+        turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
+        DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
+        DEBUG_PRINT(turnManuallyOnEnlargerLamp);
+
         toggleEnlargerLamp();
       }
     }
