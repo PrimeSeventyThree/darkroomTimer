@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Friday, 11th November 2022 11:39:25 pm
+ * Last Modified: Saturday, 12th November 2022 11:22:55 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -46,7 +46,7 @@
 //********************************************************************************
 
 #define build 1
-#define revision 5
+#define revision 6
 //********************************************************************************
 
 #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
@@ -55,13 +55,14 @@
 #include <avr/pgmspace.h> // for memory storage in program space
 
 #include <EEPROM.h> // to store/read data in EEPROM
+#include <Wire.h>
 
 // Extra libraries to handle LCD
 #include <LCD.h>
 #include <LiquidCrystal_I2C.h> // library for I2C interface
 #include <MD_REncoder.h>       // Rotary Encoder
 
-#define I2C_ADDR 0x27 // address found from I2C scanner
+#define I2C_ADDR 0x27 // address found from an I2C scanner
 #define RS_pin 0      // pin configuration for LCM1602 interface module
 #define RW_pin 1
 #define EN_pin 2
@@ -73,9 +74,6 @@
 
 #define LED_OFF 0
 #define LED_ON 1
-
-LiquidCrystal_I2C lcd(I2C_ADDR, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
-// Pins for the LCD are SCL A5, SDA A4
 
 const byte custom[][8] PROGMEM = {
     {0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0F, 0x1F}, // char 1: bottom right triangle
@@ -103,16 +101,17 @@ byte bb[8];                    // byte buffer for reading from PROGMEM
 byte hr, mn, se, osec;
 long firstDigit, secondDigit, thirdDigit;
 
-// set up encoder object
-MD_REncoder rotaryEncoder = MD_REncoder(2, 3);
-
 // VARIABLES:
+//Rotary's encoder middle pin should be connected to a ground
+const int rotaryEncoderPinOne = 2; // left pin
+const int rotaryEncoderPinTwo = 3; // right pin
+
+const int encoderButtonPin = 4; // rotary encoder's push button connection pin (resets timer to 0)
+
 int increment = 100;            // change this value to change the milliseconds increment when setting the timer
 const int lcdOffset = 3;        // sets the display position for the very left BIG digit (we use only three digits for now)
-const int encoderButtonPin = 4; // the number of the pushbutton pin
-const int timerButtonPin = 6;   // the number of the pushbutton pin
+const int timerButtonPin = 6;   // timer start push button connectionpin
 const int relayOnePin = 7;      // relay number One control pin
-const int relayTwoPin = 8;      // relay number Two control pin
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -138,7 +137,13 @@ volatile boolean timerButtonIsPressed = false; // stores a timer button state
 
 unsigned long _micro, time = micros();
 
-int eeAddress = 0; // Location we want the timer settings to be stored.
+int eeAddress = 0; // A EEPROM memory location to store the exposure time between power cycles.
+// set up encoder object
+MD_REncoder rotaryEncoder = MD_REncoder(rotaryEncoderPinOne, rotaryEncoderPinTwo);
+// set up LCD display object
+// Pins for the LCD are SCL A5, SDA A4 for Arduino UNO (check your hardware specs to see which pins are I2C bus)
+LiquidCrystal_I2C lcd(I2C_ADDR, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
+
 
 //*****************************************************************************************//
 //                                      Initial Setup
@@ -146,10 +151,11 @@ int eeAddress = 0; // Location we want the timer settings to be stored.
 void setup()
 {
   Serial.begin(57600);
+  while (!Serial); // Waiting for Serial Monitor
   randomSeed(analogRead(0));
   //  RTC.begin(DateTime(__DATE__, __TIME__));
   lcd.begin(20, 4);
-  // ------- Quick 3 blinks of backlight  -------------
+  // ------- Quick 3 blinks of an LCD's backlight  -------------
   for (int i = 0; i < 3; i++)
   {
     lcd.backlight();
@@ -332,7 +338,7 @@ void readEncoder()
     else if (x != DIR_NONE)
     {
       DEBUG_PRINT("CW ");
-      timerDelay = timerDelay - tempIncrement; // if seconds were not = 0, then decrease seconds value by the increment value
+      timerDelay = timerDelay - tempIncrement; // if seconds value is not = 0, then decrease seconds value by the increment value
       if (timerDelay < 0)
       {
         timerDelay = 0;
@@ -376,10 +382,11 @@ void turnLampOn()
 {
   if (lampIsOn)
   {
-    DEBUG_PRINT("Turning the lamp ON");
+    DEBUG_PRINT("Turning an enlander's lamp ON\n");
     pinMode(relayOnePin, OUTPUT);
     digitalWrite(relayOnePin, HIGH);
     lampIsOn = false;
+    lcd.noBacklight();
   }
 }
 
@@ -387,13 +394,7 @@ void turnLampOn()
 
 void startRelay()
 {
-  if (lampIsOn)
-  {
-    DEBUG_PRINT("turn ON an enlander's lamp\n");
-    digitalWrite(relayOnePin, HIGH);
-    lampIsOn = false;
-    lcd.noBacklight();
-  }
+  turnLampOn();
   if ((_micro = micros()) - time > duration)
   {
 
@@ -415,7 +416,7 @@ void startRelay()
 void resetTimer()
 {
   DEBUG_PRINT("Exposure Timer Reset.");
-  DEBUG_PRINT("turn OFF an enlander's lamp");
+  DEBUG_PRINT("Turning an enlander's lamp OFF\n");
   startExposure = false;
   lampIsOn = false;
   timerButtonIsPressed = false;
@@ -430,6 +431,9 @@ void showInitScreen()
   printDot(lcdOffset + 7);
   lcd.setCursor(lcdOffset + 12, 3);
   lcd.print(F("SEC"));
+  Serial.print("Darkroom Timer is initialized. Available memory is: ");
+  Serial.print(freeRam());
+  Serial.println(" bytes");
 }
 
 // main input handler
@@ -452,7 +456,7 @@ void inputHandler()
 
   if ((millis() - lastDebounceTime) > debounceDelay)
   {
-    // whatever the reading is at, it's been there for longer than the debounce
+    // whatever the reading is at, it's been there longer than the debounce
     // delay, so take it as the actual current state:
 
     // if the encoder button state has changed:
