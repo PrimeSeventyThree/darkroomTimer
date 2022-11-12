@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 3:00:11 pm
+ * Last Modified: Saturday, 12th November 2022 3:13:32 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -104,10 +104,11 @@ long firstDigit, secondDigit, thirdDigit;
 // VARIABLES:
 // Rotary's encoder middle pin should be connected to a ground
 // flip left and right pins to change rotation directions to modify the timer delay
-const int rotaryEncoderPinOne = 2; // left pin
-const int rotaryEncoderPinTwo = 3; // right pin
-
-const int encoderButtonPin = 4; // rotary encoder's push button connection pin (resets timer to 0)
+const int rotaryEncoderPinOne = 2;     // left pin
+const int rotaryEncoderPinTwo = 3;     // right pin
+#define ENABLE_SPEED                   // enables rotary encoder value changed depending on it's rotation speed.
+const int rotaryEncoderSpeedLimit = 2; // sets a rotary encoder speed limit above which it's output values depend on rotation speed
+const int encoderButtonPin = 4;        // rotary encoder's push button connection pin (resets timer to 0)
 
 int increment = 100;          // change this value to change the milliseconds increment when setting the timer
 const int lcdOffset = 3;      // sets the display position for the very left BIG digit (we use only three digits for now)
@@ -325,8 +326,8 @@ void readEncoder()
   tempIncrement = increment;
   if (x)
   {
-#if ENABLE_SPEED
-    if (rotaryEncoder.speed() > 4)
+#ifdef ENABLE_SPEED
+    if (rotaryEncoder.speed() > rotaryEncoderSpeedLimit)
     {
       tempIncrement = tempIncrement * rotaryEncoder.speed();
     }
@@ -386,7 +387,7 @@ void toggleEnlargerLamp()
   // pinMode(relayOnePin, OUTPUT);
   if (lampIsOn)
   {
-    DEBUG_PRINT("Turning an enlander's lamp ON\n");
+    DEBUG_PRINT("Turning an enlarger's lamp ON\n");
     digitalWrite(relayOnePin, HIGH);
     lcd.noBacklight();
     lampIsOn = false;
@@ -419,7 +420,7 @@ void startRelay()
 void resetTimer()
 {
   DEBUG_PRINT("Exposure Timer Reset.");
-  DEBUG_PRINT("Turning an enlander's lamp OFF\n");
+  DEBUG_PRINT("Turning an enlarger's lamp OFF\n");
   startExposure = false;
   lampIsOn = false;
   timerButtonIsPressed = false;
