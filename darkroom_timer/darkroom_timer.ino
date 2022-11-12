@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 4:44:30 pm
+ * Last Modified: Saturday, 12th November 2022 5:09:27 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -119,7 +119,7 @@ const int relayOnePin = 7;    // relay number One control pin
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
 unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers
-unsigned long toggleEnlargerLampDelay = 2000; // turn the lamp ON after the set button is pressed atleast for 2 seconds
+unsigned long turnEnlargerLampOnDelay = 2000; // turn the lamp ON after the set button is pressed atleast for 2 seconds
 const long maxTimerDelay = 99000;             // maximum timer delay is 99 seconds
 const unsigned long duration = 100000;        // timer increment in microseconds
 
@@ -381,13 +381,13 @@ int freeRam(void)
 //                                      UTILITY ROUTINES
 // ********************************************************************************** //
 
-// toggleEnlargerLamp()
+// turnEnlargerLampOn()
 
-void toggleEnlargerLamp()
+void turnEnlargerLampOn()
 {
   // pinMode(relayOnePin, OUTPUT);
   if (!turnManuallyOnEnlargerLamp)
-    resetTimer();
+    turnEnlargerLampOff();
   if (turnOnEnlargerLamp)
   {
     DEBUG_PRINT("Turning an enlarger's lamp ON\n");
@@ -401,7 +401,7 @@ void toggleEnlargerLamp()
 
 void startRelay()
 {
-  toggleEnlargerLamp();
+  turnEnlargerLampOn();
   if ((_micro = micros()) - time > duration)
   {
     // check to see if micros() has rolled over, if not,
@@ -412,14 +412,14 @@ void startRelay()
     if (timerDelay <= 0)
     {
       timerDelay = storedTimerDelay;
-      resetTimer();
+      turnEnlargerLampOff();
     }
   }
 }
 
-// resetTimer
+// turnEnlargerLampOff
 
-void resetTimer()
+void turnEnlargerLampOff()
 {
   DEBUG_PRINT("Exposure Timer Reset.");
   DEBUG_PRINT("Turning an enlarger's lamp OFF\n");
@@ -473,7 +473,7 @@ void inputHandler()
       if (encoderButtonState == LOW)
       {
         timerDelay = 0;
-        resetTimer();
+        turnEnlargerLampOff();
       }
     }
 
@@ -495,7 +495,7 @@ void inputHandler()
       time = micros();           // hwd added so timer will reset if stopped and then started
       timerButtonIsPressed = false;
 
-      if (((millis() - lastDebounceTime) < toggleEnlargerLampDelay))
+      if (((millis() - lastDebounceTime) < turnEnlargerLampOnDelay))
       {
         DEBUG_PRINT("Timer Button is Released.");
         DEBUG_PRINT("Staring Exposure.");
@@ -513,7 +513,7 @@ void inputHandler()
         DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
         DEBUG_PRINT(turnManuallyOnEnlargerLamp);
 
-        toggleEnlargerLamp();
+        turnEnlargerLampOn();
       }
     }
   }
