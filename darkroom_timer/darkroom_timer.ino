@@ -1,15 +1,13 @@
 /*
  * File: darkroom_timer.ino
- * Project: darkroom_timer
+ * Project: Drakroom Timer
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 9th November 2022 8:29:14 pm
+ * Last Modified: Friday, 11th November 2022 11:39:25 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
- *
- * Copyright (c) 2022 Prime73 Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -33,14 +31,18 @@
  */
 
 //********************************************************************************
-//                                 DARKROOM EXPOSURE TIMER
-//                                 Andrei Grichine, December 2017
 //
-//                                 this code is based on:
-//                                 BIG FONT (4-line) LCD CHARACTERS
-//                                 http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/
-//                                 Adrian Jones, February 2015
+//    DARKROOM EXPOSURE TIMER
+//    Andrei Grichine, December 2017
 //
+//    this code is based on:
+//    BIG FONT (4-line) LCD CHARACTERS
+//    http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/
+//    Adrian Jones, February 2015
+//
+//    REQUREMENTS:
+//    MD_REncoder - Rotary Encoder Library (https://github.com/MajicDesigns/MD_REncoder)
+//    New-LiquidCrystal - LCD Library for Arduino and Chipkit (https://github.com/fmalpartida/New-LiquidCrystal)
 //********************************************************************************
 
 #define build 1
@@ -50,14 +52,14 @@
 #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 #include "DebugUtils.h" // Debug Utils
 
-#include <MD_REncoder/MD_REncoder.h>> // Rotary Encoder
-
 #include <avr/pgmspace.h> // for memory storage in program space
 
 #include <EEPROM.h> // to store/read data in EEPROM
-#include <Wire.h>
-#include <LCD.h>               // Standard lcd library
+
+// Extra libraries to handle LCD
+#include <LCD.h>
 #include <LiquidCrystal_I2C.h> // library for I2C interface
+#include <MD_REncoder.h>       // Rotary Encoder
 
 #define I2C_ADDR 0x27 // address found from I2C scanner
 #define RS_pin 0      // pin configuration for LCM1602 interface module
