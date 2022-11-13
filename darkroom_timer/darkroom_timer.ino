@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 5:09:27 pm
+ * Last Modified: Saturday, 12th November 2022 7:08:59 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -114,7 +114,7 @@ int increment = 100;          // change this value to change the milliseconds in
 const int lcdOffset = 3;      // sets the display position for the very left BIG digit (we use only three digits for now)
 const int timerButtonPin = 6; // timer start push button connectionpin
 const int relayOnePin = 7;    // relay number One control pin
-
+const int manualLightPin = 8; // manual light indicator pin
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
@@ -207,6 +207,8 @@ void setup()
   digitalWrite(relayOnePin, HIGH);
   delay(1000);
   digitalWrite(relayOnePin, LOW);
+
+  pinMode(manualLightPin, OUTPUT);
 }
 
 //*****************************************************************************************//
@@ -428,6 +430,7 @@ void turnEnlargerLampOff()
   turnManuallyOnEnlargerLamp = false;
   timerButtonIsPressed = false;
   digitalWrite(relayOnePin, LOW);
+  digitalWrite(manualLightPin, LOW);
   lcd.backlight();
 }
 
@@ -486,34 +489,41 @@ void inputHandler()
         timerButtonIsPressed = true;
       }
     }
-
-    if (timerButtonIsPressed && timerButtonState == HIGH)
+    if (timerButtonIsPressed)
     {
-      storedTimerDelay = timerDelay;
-      EEPROM.put(eeAddress, storedTimerDelay);
-      turnOnEnlargerLamp = true; // signals to turn on the lamp
-      time = micros();           // hwd added so timer will reset if stopped and then started
-      timerButtonIsPressed = false;
-
-      if (((millis() - lastDebounceTime) < turnEnlargerLampOnDelay))
+      if (timerButtonState == HIGH)
       {
-        DEBUG_PRINT("Timer Button is Released.");
-        DEBUG_PRINT("Staring Exposure.");
-        startExposure = true; // RELAY
-        turnManuallyOnEnlargerLamp = true;
+        storedTimerDelay = timerDelay;
+        EEPROM.put(eeAddress, storedTimerDelay);
+        turnOnEnlargerLamp = true; // signals to turn on the lamp
+        time = micros();           // hwd added so timer will reset if stopped and then started
+        timerButtonIsPressed = false;
+
+        if (((millis() - lastDebounceTime) < turnEnlargerLampOnDelay))
+        {
+          DEBUG_PRINT("Timer Button is Released.");
+          DEBUG_PRINT("Staring Exposure.");
+          startExposure = true; // RELAY
+          turnManuallyOnEnlargerLamp = true;
+        }
+        else
+        {
+          startExposure = false;
+          DEBUG_PRINT("Timer Button is Released after a manual delay.");
+          DEBUG_PRINT((millis() - lastDebounceTime));
+          //      lastDebounceTime = millis();
+          //      timerButtonIsPressed = true;
+          turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
+          DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
+          DEBUG_PRINT(turnManuallyOnEnlargerLamp);
+          digitalWrite(manualLightPin, HIGH);
+          turnEnlargerLampOn();
+        }
       }
-      else
+      else if (((millis() - lastDebounceTime) > turnEnlargerLampOnDelay))
       {
-        startExposure = false;
-        DEBUG_PRINT("Timer Button is Pressed.");
-        DEBUG_PRINT((millis() - lastDebounceTime));
-        //      lastDebounceTime = millis();
-        //      timerButtonIsPressed = true;
-        turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
-        DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
-        DEBUG_PRINT(turnManuallyOnEnlargerLamp);
-
-        turnEnlargerLampOn();
+        DEBUG_PRINT("Timer Button is Pressed longer than a manual delay.");
+        digitalWrite(manualLightPin, HIGH);
       }
     }
   }
