@@ -516,7 +516,7 @@ void inputHandler()
           turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
           DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
           DEBUG_PRINT(turnManuallyOnEnlargerLamp);
-          digitalWrite(manualLightPin, HIGH);
+          digitalWrite(manualLightPin, LOW);
           turnEnlargerLampOn();
         }
       }
