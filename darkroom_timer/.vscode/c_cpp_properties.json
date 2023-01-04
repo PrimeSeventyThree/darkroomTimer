@@ -1,0 +1,33 @@
+{
+    "env": {
+        "arduino_path": "/Applications/Arduino.app/Contents/Java",
+        "arduino_avr_include_path": "${env:arduino_path}/hardware/arduino/avr",
+        "arduino_avr_include2_path": "${env:arduino_path}/hardware/tools/avr/avr/include",
+        "arduino_avr_compiler_path": "${env:arduino_path}/hardware/tools/avr/bin/avr-g++",
+        "arduino_compiler_path": "/usr/local/bin/gcc-11",
+        "arduino.libraries.path": "${HOME}/Documents/Arduino/libraries/"
+    },
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${default}",
+                "${workspaceRoot}",
+                "${env:arduino_avr_include_path}/**",
+                "${env:arduino_avr_include2_path}/**",
+                "${HOME}/Documents/Arduino/libraries/",
+                "${HOME}/arduino/sketchbook/libraries"
+            ],
+            "forcedInclude": [
+                "/Applications/Arduino IDE.app/Contents/Java/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ],            
+            "defines": [],
+            "macFrameworkPath": [],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "macos-gcc-x64",
+            "compilerPath": "${env:arduino_compiler_path} -std=gnu++11 -mmcu=atmega328p"
+        }
+    ],
+    "version": 4
+}

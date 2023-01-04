@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Saturday, 12th November 2022 7:08:59 pm
+ * Last Modified: Wednesday, 4th January 2023 6:01:04 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -49,7 +49,7 @@
 #define revision 6
 //********************************************************************************
 
-#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
+// #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 #include "DebugUtils.h" // Debug Utils
 
 #include <avr/pgmspace.h> // for memory storage in program space
@@ -104,43 +104,43 @@ long firstDigit, secondDigit, thirdDigit;
 // VARIABLES:
 // Rotary's encoder middle pin should be connected to a ground
 // flip left and right pins to change rotation directions to modify the timer delay
-const int rotaryEncoderPinOne = 2; // left pin
-const int rotaryEncoderPinTwo = 3; // right pin
+const int rotaryEncoderPinOne = 3; // left pin (A)
+const int rotaryEncoderPinTwo = 2; // right pin (B)
 
-const int rotaryEncoderSpeedLimit = 2; // sets a rotary encoder speed limit above which it's output values depend on rotation speed
+const int rotaryEncoderSpeedLimit = 2; // the rotary encoder speed threshold above which the increment value is multiplied by the current speed value. This is to avoid the encoder to be too sensitive when setting the timer delay.
 const int encoderButtonPin = 4;        // rotary encoder's push button connection pin (resets timer to 0)
 
-int increment = 100;          // change this value to change the milliseconds increment when setting the timer
+int increment = 100;          // change this value to change the milliseconds increment when setting the timer delay
 const int lcdOffset = 3;      // sets the display position for the very left BIG digit (we use only three digits for now)
 const int timerButtonPin = 6; // timer start push button connectionpin
-const int relayOnePin = 7;    // relay number One control pin
+const int relayOnePin = 7;    //  the pin number of the relay controlling the enlarger lamp
 const int manualLightPin = 8; // manual light indicator pin
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
-unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled
-unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers
-unsigned long turnEnlargerLampOnDelay = 2000; // turn the lamp ON after the set button is pressed atleast for 2 seconds
-const long maxTimerDelay = 99000;             // maximum timer delay is 99 seconds
-const unsigned long duration = 100000;        // timer increment in microseconds
+unsigned long lastDebounceTime = 0;           // the last time the output pin was toggled (debounce)
+unsigned long debounceDelay = 50;             // the debounce time; increase if the output flickers (50ms is a good value)
+unsigned long turnEnlargerLampOnDelay = 2000; // turn the lamp ON after the set button is pressed atleast for 2 seconds (2000ms)
+const long maxTimerDelay = 99000;             // maximum timer delay is 99 seconds (99000ms)
+const unsigned long duration = 100000;        // timer increment in microseconds (100000us = 100ms)
 
 long timerDelay = 0;
 long storedTimerDelay = 0;
 char tempString[26];
 int tempIncrement = 0;
 
-int encoderButtonState;           // the current reading from the input pin
-int lastEncoderButtonState = LOW; // the previous reading from the input pin
-int timerButtonState;             // the current reading from the input pin
-int lastTimerButtonState = LOW;   // the previous reading from the input pin
+int encoderButtonState;           // the current reading from the input pin (encoder's push button)
+int lastEncoderButtonState = LOW; // the previous reading from the input pin (encoder's push button)
+int timerButtonState;             // the current reading from the input pin (timer's push button)
+int lastTimerButtonState = LOW;   // the previous reading from the input pin (timer's push button)
 
 volatile boolean startExposure = false;
-volatile boolean turnOnEnlargerLamp = false;         // stores an enlarger's lamp state
-volatile boolean turnManuallyOnEnlargerLamp = false; // stores an enlarger's lamp state in manual mode (Enlarger is turned on/off manually)
-volatile boolean timerButtonIsPressed = false;       // stores a timer button state
+volatile boolean turnOnEnlargerLamp = false;         // A flag indicating whether the enlarger lamp should be turned on or off. Stores an enlarger's lamp state in timer mode (Enlarger is turned on/off automatically).
+volatile boolean turnManuallyOnEnlargerLamp = false; // A flag indicating whether the enlarger lamp is manually turned on or off. Stores an enlarger's lamp state in manual mode (Enlarger is turned on/off manually).
+volatile boolean timerButtonIsPressed = false;       // stores a timer button state (pressed or not pressed)
 
 unsigned long _micro, time = micros();
 
-int eeAddress = 0; // A EEPROM memory location to store the exposure time between power cycles.
+int eeAddress = 0; // A EEPROM memory location to store the exposure time between power cycles. This is used to restore the exposure time after the power cycle.
 // set up encoder object
 MD_REncoder rotaryEncoder = MD_REncoder(rotaryEncoderPinOne, rotaryEncoderPinTwo);
 // set up LCD display object
@@ -187,8 +187,6 @@ void setup()
   lcd.print(F(" "));
   lcd.print(freeRam());
   lcd.print(F("B"));
-  //    printNum(random(0,10),0);
-  //    printNum(random(0,10),17);
   delay(1500);
   lcd.clear();
 
@@ -211,95 +209,115 @@ void setup()
   pinMode(manualLightPin, OUTPUT);
 }
 
-//*****************************************************************************************//
-//                                      MAIN LOOP
-//*****************************************************************************************//
+/**
+ *                                      MAIN LOOP
+ */
+
 void loop()
 {
-
+  // handle input from buttons and rotary encoder
   inputHandler();
 
+  // if exposure is not in progress, check for changes to timer delay
   if (!startExposure)
   {
     readEncoder();
   }
+  // if exposure is in progress, activate relay and check if exposure is complete
   else
   {
     startRelay();
   }
 
-  //    DateTime now = RTC.now();
-  //    hr = now.hour();
-  se = timerDelay / 100;
+  // calculate number of seconds remaining
+  se = timerDelay / 100; // seconds
 
-  thirdDigit = floor(timerDelay / 10000);
-  secondDigit = floor((timerDelay - thirdDigit * 10000) / 1000);
-  firstDigit = floor((timerDelay - thirdDigit * 10000 - secondDigit * 1000) / increment);
+  // calculate digits for timer display
+  thirdDigit = floor(timerDelay / 10000);                                                 // 10000ms = 10s
+  secondDigit = floor((timerDelay - thirdDigit * 10000) / 1000);                          // 1000ms = 1s
+  firstDigit = floor((timerDelay - thirdDigit * 10000 - secondDigit * 1000) / increment); // 100ms = 0.1s
 
+  // update timer display if seconds remaining have changed
   if (se != osec)
   {
-    // DEBUG_PRINT(thirdDigit);
-    // DEBUG_PRINT(secondDigit);
-    // DEBUG_PRINT(firstDigit);
-
+    // third digit
     if (thirdDigit != 0)
     {
       printNum(thirdDigit, lcdOffset);
-      //      if (secondDigit != 0) {
-      printNum(secondDigit, lcdOffset + 4);
-      printNum(firstDigit, lcdOffset + 8);
     }
     else
     {
       eraseNum(lcdOffset);
-
-      if (secondDigit != 0)
-      {
-        printNum(secondDigit, lcdOffset + 4);
-        printNum(firstDigit, lcdOffset + 8);
-      }
-      else
-      {
-        eraseNum(lcdOffset + 4);
-        printNum(firstDigit, lcdOffset + 8);
-      }
     }
+
+    // second digit
+    if (secondDigit != 0 || thirdDigit != 0)
+    {
+      printNum(secondDigit, lcdOffset + 4);
+    }
+    else
+    {
+      eraseNum(lcdOffset + 4);
+    }
+
+    // first digit
+    printNum(firstDigit, lcdOffset + 8);
+
+    // show initial screen
     showInitScreen();
+
+    // update previous seconds value
     osec = se;
   }
-
-  //      delay(50);                // not strictly necessary
 }
-// ********************************************************************************** //
-//                                      SUBROUTINES
-// ********************************************************************************** //
+
+/**
+ *                                      SUBROUTINES
+ */
+
+/**
+ * @brief Prints a digit on an LCD screen.
+ *
+ * @param digit A digit to print.
+ * @param leftAdjust A left adjustment of a digit.
+ */
 void printNum(byte digit, byte leftAdjust)
 {
-  for (row = 0; row < 4; row++)
+  for (byte row = 0; row < 4; row++)
   {
     lcd.setCursor(leftAdjust, row);
-    for (col = digit * 3; col < digit * 3 + 3; col++)
+    for (byte col = digit * 3; col < digit * 3 + 3; col++)
     {
       lcd.write(pgm_read_byte(&bn[row][col]));
     }
   }
 }
 
+/**
+ * @brief Erases a digit from an LCD screen.
+ *
+ * @param leftAdjust A left adjustment of a digit.
+ */
 void eraseNum(byte leftAdjust)
 {
-  for (row = 0; row < 4; row++)
+  for (byte row = 0; row < 4; row++)
   {
     lcd.setCursor(leftAdjust, row);
-    for (col = leftAdjust; col < leftAdjust + 3; col++)
+    for (byte col = leftAdjust; col < leftAdjust + 3; col++)
     {
       lcd.print(F(" "));
     }
   }
 }
 
+/**
+ * @brief Prints a colon on an LCD screen.
+ *
+ * @param leftAdjust A left adjustment of a colon.
+ */
 void printColon(byte leftAdjust)
 {
-  for (row = 0; row < 4; row++)
+  for (byte row = 0; row < 4; row++)
   {
     lcd.setCursor(leftAdjust, row);
     if (row == 1 || row == 2)
@@ -309,9 +327,14 @@ void printColon(byte leftAdjust)
   }
 }
 
+/**
+ * @brief Prints a dot on an LCD screen.
+ *
+ * @param leftAdjust A left adjustment of a dot.
+ */
 void printDot(byte leftAdjust)
 {
-  for (row = 0; row < 4; row++)
+  for (byte row = 0; row < 4; row++)
   {
     lcd.setCursor(leftAdjust, row);
     if (row == 3)
@@ -321,75 +344,80 @@ void printDot(byte leftAdjust)
   }
 }
 
+/**
+ * @brief Reads a rotary encoder and updates the timer delay according to its rotation direction and speed.
+ */
 void readEncoder()
 {
-  // seconds = constrain (seconds, -1, 60); //constrains the seconds value between -1 and 60
   uint8_t x = rotaryEncoder.read();
-  tempIncrement = increment;
+  uint32_t tempIncrement = increment;
+
   if (x)
   {
     // enables rotary encoder value changed depending on it's rotation speed.
-#if ENABLE_SPEED
-    if (rotaryEncoder.speed() > rotaryEncoderSpeedLimit)
+    if (ENABLE_SPEED && rotaryEncoder.speed() > rotaryEncoderSpeedLimit)
     {
       tempIncrement = tempIncrement * rotaryEncoder.speed();
     }
-#endif
     if (x == DIR_CCW)
     {
       // if Encoder is moved counter clock wise (CCW, i.e. backwards), decrease timer delay by defined increment value
       DEBUG_PRINT("CCW ");
-      timerDelay = timerDelay - tempIncrement;
-      if (timerDelay < 0) // timer delay can't be less than 0 seconds
-      {
-        timerDelay = 0;
-      }
+      timerDelay = timerDelay > tempIncrement ? timerDelay - tempIncrement : 0;
     }
     else if (x != DIR_NONE)
     {
       // if Encoder is moved clock wise (CW, i.e. forward), increase timer delay by defined increment value
       DEBUG_PRINT("CW ");
-      timerDelay = timerDelay + tempIncrement;
-      if (timerDelay >= maxTimerDelay) // timer delay can't be more than maxTimerDelay (see it's definition above) seconds
-      {
-        timerDelay = maxTimerDelay;
-      }
+      timerDelay = timerDelay + tempIncrement < maxTimerDelay ? timerDelay + tempIncrement : maxTimerDelay;
     }
-
     DEBUG_PRINT("timerDelay: ");
     DEBUG_PRINT(timerDelay);
   }
 }
-// ********************************************************************************** //
-//                                      OPERATION ROUTINES
-// ********************************************************************************** //
-// FREERAM: Returns the number of bytes currently free in RAM
-int freeRam(void)
+/**
+ *                                      OPERATION ROUTINES
+ */
+
+/**
+ * @brief Returns the number of bytes currently free in RAM.
+ *
+ * @return the number of free bytes in RAM
+ */
+int freeRam()
 {
-  extern int __bss_end, *__brkval;
+  extern char __bss_end;
+  extern char *__brkval;
+
   int free_memory;
-  if ((int)__brkval == 0)
+  if (reinterpret_cast<int>(__brkval) == 0)
   {
-    free_memory = ((int)&free_memory) - ((int)&__bss_end);
+    // If heap is not being used, free memory is the space between the end of the static data
+    // and the start of the stack
+    free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(&__bss_end);
   }
   else
   {
-    free_memory = ((int)&free_memory) - ((int)__brkval);
+    // If heap is being used, free memory is the space between the end of the heap and the start of the stack
+    free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(__brkval);
   }
+
   return free_memory;
 }
 
-// ********************************************************************************** //
-//                                      UTILITY ROUTINES
-// ********************************************************************************** //
+/**
+ *                                      UTILITY ROUTINES
+ */
 
-// turnEnlargerLampOn()
-
+/**
+ *  @brief Turns the enlarger lamp on if it is not manually turned off.
+ */
 void turnEnlargerLampOn()
 {
-  // pinMode(relayOnePin, OUTPUT);
   if (!turnManuallyOnEnlargerLamp)
+  {
     turnEnlargerLampOff();
+  }
   if (turnOnEnlargerLamp)
   {
     DEBUG_PRINT("Turning an enlarger's lamp ON\n");
@@ -399,7 +427,9 @@ void turnEnlargerLampOn()
   }
 }
 
-// startRelay
+/**
+ * @brief Starts the exposure timer.
+ */
 
 void startRelay()
 {
@@ -419,7 +449,9 @@ void startRelay()
   }
 }
 
-// turnEnlargerLampOff
+/**
+ * @brief Turns the enlarger lamp off.
+ */
 
 void turnEnlargerLampOff()
 {
@@ -434,7 +466,9 @@ void turnEnlargerLampOff()
   lcd.backlight();
 }
 
-// showInitScreen
+/*
+ * @brief Shows the initialization screen.
+ */
 
 void showInitScreen()
 {
@@ -446,7 +480,9 @@ void showInitScreen()
   Serial.println(" bytes");
 }
 
-// main input handler
+/**
+ * @brief Handles the input from the rotary encoder and the timer button.
+ */
 
 void inputHandler()
 {
