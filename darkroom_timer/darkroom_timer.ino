@@ -1,10 +1,10 @@
 /*
  * File: darkroom_timer.ino
- * Project: Drakroom Timer
+ * Project: Darkroom Timer
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 4th January 2023 6:01:04 pm
+ * Last Modified: Thursday, 18th April 2024 1:55:46 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -40,7 +40,7 @@
 //    http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/
 //    Adrian Jones, February 2015
 //
-//    REQUREMENTS:
+//    REQUIREMENTS:
 //    MD_REncoder - Rotary Encoder Library (https://github.com/MajicDesigns/MD_REncoder)
 //    New-LiquidCrystal - LCD Library for Arduino and Chipkit (https://github.com/fmalpartida/New-LiquidCrystal)
 //********************************************************************************
@@ -112,7 +112,7 @@ const int encoderButtonPin = 4;        // rotary encoder's push button connectio
 
 int increment = 100;          // change this value to change the milliseconds increment when setting the timer delay
 const int lcdOffset = 3;      // sets the display position for the very left BIG digit (we use only three digits for now)
-const int timerButtonPin = 6; // timer start push button connectionpin
+const int timerButtonPin = 6; // timer start push button connection pin
 const int relayOnePin = 7;    //  the pin number of the relay controlling the enlarger lamp
 const int manualLightPin = 8; // manual light indicator pin
 // the following variables are unsigned longs because the time, measured in
