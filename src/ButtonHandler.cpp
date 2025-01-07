@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:33:16 pm
+ * Last Modified: Tuesday, 7th January 2025 1:28:03 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -74,7 +74,7 @@ void inputHandler() {
         }
     }
 
-    if (checkButtonState(timerButtonPin, timerButtonState)) {
+    if (checkButtonState(TIMER_BUTTON_PIN, timerButtonState)) {
         if (timerButtonState.currentButtonState == LOW) {
             timerButtonIsPressed = true;
             timerButtonState.lastDebounceTime = millis();
@@ -103,7 +103,7 @@ void inputHandler() {
                 turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
                 DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
                 DEBUG_PRINT(String(turnManuallyOnEnlargerLamp));
-                digitalWrite(manualLightPin, turnManuallyOnEnlargerLamp ? HIGH : LOW);
+                digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
             }
         }
     }

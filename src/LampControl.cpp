@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:42:55 pm
+ * Last Modified: Tuesday, 7th January 2025 1:26:10 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -75,12 +75,12 @@ void handleEnlargerLamp() {
     }
 
     // Check if the exposure timer has reached its duration
-    if ((micros() - time) >= duration) {
+    if ((micros() - time) >= DURATION) {
         // Reset the timer if micros() has rolled over
         if (micros() < time) {
             time = micros();
         } else {
-            time += duration;
+            time += DURATION;
         }
 
         // Decrease the timer delay

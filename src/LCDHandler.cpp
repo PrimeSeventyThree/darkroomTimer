@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:47:40 pm
+ * Last Modified: Tuesday, 7th January 2025 1:27:01 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -300,9 +300,9 @@ void displaySplashScreen() {
     lcd.print(F("EXPOSURE TIMER"));
     lcd.setCursor(6, 3);
     lcd.print(F("V"));
-    lcd.print(build);
+    lcd.print(BUILD_VERSION);
     lcd.print(F("."));
-    lcd.print(revision);
+    lcd.print(REVISION_NUMBER);
     lcd.print(F(" "));
     lcd.print(freeRam());
     lcd.print(F("B"));

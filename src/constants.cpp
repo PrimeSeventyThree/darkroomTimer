@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 11:28:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:44:56 pm
+ * Last Modified: Tuesday, 7th January 2025 1:23:35 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -34,16 +34,20 @@
 
 #include "constants.h"
 
-// Define and initialize the global variables
+// --- Global Variables ---
 unsigned long _micro = 0;
 unsigned long time = 0;
+
 long timerDelay = 0;           // Current timer delay
 long storedTimerDelay = 0;     // Last stored timer value
 
 unsigned long lastEEPROMWrite = 0;  // Tracks the last EEPROM write time
 int eeAddress = 0;
+
+volatile bool startExposure = false;
 volatile bool turnOnEnlargerLamp = false;
 volatile bool turnManuallyOnEnlargerLamp = false;
-volatile bool startExposure = false;
 volatile bool timerButtonIsPressed = false;
-LiquidCrystal_I2C lcd(I2C_ADDRESS, EN_pin, RW_pin, RS_pin, D4_pin, D5_pin, D6_pin, D7_pin, BACK_pin, POSITIVE);
+
+// --- LCD Instance ---
+LiquidCrystal_I2C lcd(I2C_ADDRESS, EN_PIN, RW_PIN, RS_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN, BACK_PIN, POSITIVE);
