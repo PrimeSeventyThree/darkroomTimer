@@ -3,4 +3,4 @@
 .dccache
 build/
 .vscode/
-.bak
+*.bak
