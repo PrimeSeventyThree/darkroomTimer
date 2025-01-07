@@ -43,7 +43,7 @@ The maximum timer delay that can be set is 99 seconds (99000 milliseconds). This
 - **Manual Light Indicator**: Digital output to indicate manual light mode.
 
 ## LCD I2C connection
-Use the I2C interface module (for example LCM1602) to connect the LCD to the Arduino. The I2C module simplifies the wiring and reduces the number of pins required to connect the LCD to the Arduino. Use an I2C scanner of your choice to find the I2C address of the LCD module. I've include a simle arduino sketch by Arbi Abdul Jabbaar in the project as well. The default address is 0x27.
+Use the I2C interface module (for example LCM1602) to connect the LCD to the Arduino. The I2C module simplifies the wiring and reduces the number of pins required to connect the LCD to the Arduino. Use an I2C scanner of your choice to find the I2C address of the LCD module. I've included a simle arduino sketch by Arbi Abdul Jabbaar in the project as well. The default address is 0x27.
 
 ## LCD Character Display
 
