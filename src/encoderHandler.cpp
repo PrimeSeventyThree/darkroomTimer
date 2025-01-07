@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:45 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 3:13:26 pm
+ * Last Modified: Tuesday, 7th January 2025 4:31:10 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -34,12 +34,11 @@
 
 #include "encoderHandler.h"
 #include "constants.h"
-#include "timerLogic.h"
 
 MD_REncoder rotaryEncoder(ROTARY_ENCODER_PIN_A, ROTARY_ENCODER_PIN_B);
 
 void initializeEncoder() {
-    Serial.println(F("Initializing Encoder..."));
+    DEBUG_PRINT("Initializing Encoder...");
     rotaryEncoder.begin();
 }
 
@@ -60,16 +59,16 @@ void handleEncoderInput() {
         if (direction == DIR_CCW) {
             // Decrease timer delay when moving counterclockwise
             timerDelay = timerDelay > tempIncrement ? timerDelay - tempIncrement : 0;
-            Serial.println(F("CCW "));
+            DEBUG_PRINT("CCW ");
         } else if (direction == DIR_CW) {
             // Increase timer delay when moving clockwise
             timerDelay = timerDelay + tempIncrement < MAX_TIMER_DELAY ? timerDelay + tempIncrement : MAX_TIMER_DELAY;
-            Serial.println(F("CW "));
+            DEBUG_PRINT("CW ");
         }
 
         // Debug output
-        Serial.print(F("timerDelay: "));
-        Serial.println(timerDelay);
+        DEBUG_PRINT("timerDelay: ");
+        DEBUG_PRINT(timerDelay);
     }
 }
 

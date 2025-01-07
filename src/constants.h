@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 3:09:25 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 1:57:41 pm
+ * Last Modified: Tuesday, 7th January 2025 4:37:59 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -36,6 +36,9 @@
 #define CONSTANTS_H
 
 #include <LiquidCrystal_I2C.h>
+
+#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
+
 #include "DebugUtils.h" // Debug Utilities
 
 // --- Timer Configuration ---
@@ -95,4 +98,4 @@ extern LiquidCrystal_I2C lcd;
 
 // --- Build Information ---
 #define BUILD_VERSION 2.0
-#define REVISION_NUMBER 31
+#define REVISION_NUMBER 32

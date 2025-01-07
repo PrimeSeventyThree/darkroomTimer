@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 3:14:33 pm
+ * Last Modified: Tuesday, 7th January 2025 4:42:17 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -55,7 +55,7 @@
 #include "src/encoderHandler.h"
 #include "src/LCDHandler.h"
 #include "src/LampControl.h"
-#include "src/timerLogic.h"
+
 //*****************************************************************************************//
 //                                      Initial Setup
 //*****************************************************************************************//
@@ -69,19 +69,9 @@ void setup()
   //  RTC.begin(DateTime(__DATE__, __TIME__));
   testLCD();
   initializeLCD();
-
-    // pinMode(ROTARY_ENCODER_PIN_A, INPUT_PULLUP);
-    // pinMode(ROTARY_ENCODER_PIN_B, INPUT_PULLUP);
   showInitScreen();
-  
-  //printNum(0, lcdOffset + 8); ???
-
-  initializeTimerLogic();
-
-  initializeEncoder();
-  
   initializeButtons();
-
+  initializeEncoder();
   testEnlargerLamp();
 }
 

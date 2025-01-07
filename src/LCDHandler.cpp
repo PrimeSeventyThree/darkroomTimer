@@ -1,10 +1,10 @@
 /*
- * File: lcdHandler.cpp
+ * File: LCDHandler.cpp
  * Project: Darkroom Enlarger Timer
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 1:27:01 pm
+ * Last Modified: Tuesday, 7th January 2025 4:50:35 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -247,7 +247,6 @@ void clearBigDigit(uint8_t position) {
 }
 
 void testLCD() {
-  lcd.begin(20, 4);
   // ------- Quick 3 blinks of an LCD's backlight  -------------
   for (int i = 0; i < 3; i++)
   {
@@ -298,7 +297,14 @@ void displaySplashScreen() {
     lcd.print(F("DARKROOM"));
     lcd.setCursor(3, 1);
     lcd.print(F("EXPOSURE TIMER"));
-    lcd.setCursor(6, 3);
+
+    // Display the last stored delay on one line
+    lcd.setCursor(3, 2); // Adjust for proper alignment
+    lcd.print(F("Last Delay: "));
+    lcd.print(storedTimerDelay / 1000); // Convert to seconds
+    lcd.print(F(" sec"));
+
+    lcd.setCursor(6, 3); // Position for version and memory info
     lcd.print(F("V"));
     lcd.print(BUILD_VERSION);
     lcd.print(F("."));
@@ -306,9 +312,11 @@ void displaySplashScreen() {
     lcd.print(F(" "));
     lcd.print(freeRam());
     lcd.print(F("B"));
-    delay(1500);
+
+    delay(2000); // Adjust delay for better readability
     lcd.clear();
 }
+
 
 
 void displayBigNumbers(long delay) {

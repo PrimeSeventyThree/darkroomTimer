@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 1:26:10 pm
+ * Last Modified: Tuesday, 7th January 2025 3:50:55 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -58,7 +58,7 @@ void turnEnlargerLampOn() {
         turnEnlargerLampOff();
     }
     if (turnOnEnlargerLamp) {
-        Serial.println(F("Turning enlarger lamp ON"));
+        DEBUG_PRINT("Turning enlarger lamp ON");
         digitalWrite(RELAY_PIN, HIGH);
         lcd.noBacklight();
         turnOnEnlargerLamp = false;
@@ -99,7 +99,7 @@ void handleEnlargerLamp() {
  */
 
 void turnEnlargerLampOff() {
-    Serial.println(F("Turning enlarger lamp OFF"));
+    DEBUG_PRINT("Turning enlarger lamp OFF");
     startExposure = false;
     turnOnEnlargerLamp = false;
     turnManuallyOnEnlargerLamp = false;

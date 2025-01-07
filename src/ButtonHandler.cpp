@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 1:28:03 pm
+ * Last Modified: Tuesday, 7th January 2025 4:52:48 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -44,8 +44,14 @@ ButtonState timerButtonState;
 void initializeButtons() {
     pinMode(TIMER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
+        // Restore stored timer delay from EEPROM
+    EEPROM.get(eeAddress, storedTimerDelay);
+    timerDelay = storedTimerDelay;
 }
-// Function to check the button state and manage debouncing
+
+/**
+ * @brief Function to check the button state and manage debouncing
+ */
 bool checkButtonState(int buttonPin, ButtonState& state) {
     bool stateChanged = false;
     int reading = digitalRead(buttonPin);
