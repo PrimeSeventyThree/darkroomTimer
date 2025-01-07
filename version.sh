@@ -5,7 +5,7 @@
 # File Created: Tuesday, 7th January 2025 1:35:06 pm
 # Author: Andrei Grichine (andrei.grichine@gmail.com)
 # -----
-# Last Modified: Tuesday, 7th January 2025 1:50:25 pm
+# Last Modified: Tuesday, 7th January 2025 2:13:09 pm
 # Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
 # -----
 # Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -44,7 +44,18 @@ BUILD_VERSION=${BUILD_VERSION:-"2.0"}
 CONSTANTS_FILE="src/constants.h"
 
 # Locate the git binary
-git=$(which git)
+# Specify git binary manually if not found
+git=$(command -v git)
+
+if [ -z "$git" ]; then
+    git="/usr/bin/git" # Update this path if needed
+fi
+
+# Ensure git is working
+if [ ! -x "$git" ]; then
+    echo "Error: Git binary not found or not executable."
+    exit 1
+fi
 
 # Get total commit count for the build number
 appBuild=$("$git" rev-list --all --count)
