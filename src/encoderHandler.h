@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:37 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Thursday, 2nd January 2025 7:27:29 am
+ * Last Modified: Tuesday, 7th January 2025 3:10:13 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -47,6 +47,6 @@ extern MD_REncoder rotaryEncoder;
 
 void initializeEncoder();
 void handleEncoderInput();
-bool encoderInputDetected();
+// bool encoderInputDetected();
 
 #endif

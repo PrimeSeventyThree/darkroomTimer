@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:45 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:11:16 pm
+ * Last Modified: Tuesday, 7th January 2025 3:13:26 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -39,6 +39,7 @@
 MD_REncoder rotaryEncoder(ROTARY_ENCODER_PIN_A, ROTARY_ENCODER_PIN_B);
 
 void initializeEncoder() {
+    Serial.println(F("Initializing Encoder..."));
     rotaryEncoder.begin();
 }
 
@@ -49,7 +50,7 @@ void handleEncoderInput() {
     uint8_t direction = rotaryEncoder.read();
     uint32_t tempIncrement = TIMER_INCREMENT; // Local copy of increment value
 
-    if (direction != DIR_NONE) {
+    if (direction) {
         // Adjust increment based on speed if enabled
         if (ENABLE_SPEED && rotaryEncoder.speed() > ROTARY_ENCODER_SPEED_LIMIT) {
             tempIncrement *= rotaryEncoder.speed();
@@ -59,19 +60,19 @@ void handleEncoderInput() {
         if (direction == DIR_CCW) {
             // Decrease timer delay when moving counterclockwise
             timerDelay = timerDelay > tempIncrement ? timerDelay - tempIncrement : 0;
-            DEBUG_PRINT("CCW ");
+            Serial.println(F("CCW "));
         } else if (direction == DIR_CW) {
             // Increase timer delay when moving clockwise
             timerDelay = timerDelay + tempIncrement < MAX_TIMER_DELAY ? timerDelay + tempIncrement : MAX_TIMER_DELAY;
-            DEBUG_PRINT("CW ");
+            Serial.println(F("CW "));
         }
 
         // Debug output
-        DEBUG_PRINT("timerDelay: ");
-        DEBUG_PRINT(timerDelay);
+        Serial.print(F("timerDelay: "));
+        Serial.println(timerDelay);
     }
 }
 
-bool encoderInputDetected() {
-    return rotaryEncoder.read() != DIR_NONE;
-}
+// bool encoderInputDetected() {
+//     return rotaryEncoder.read() != DIR_NONE;
+// }

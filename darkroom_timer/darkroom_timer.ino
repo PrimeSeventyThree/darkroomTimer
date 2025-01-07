@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:32:29 pm
+ * Last Modified: Tuesday, 7th January 2025 3:14:33 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -47,7 +47,7 @@
 
 //********************************************************************************
 
-// #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
+#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 
 #include "src/DebugUtils.h" // Debug Utils
 #include "src/constants.h"
@@ -56,11 +56,6 @@
 #include "src/LCDHandler.h"
 #include "src/LampControl.h"
 #include "src/timerLogic.h"
-
-// set up LCD display object
-// Pins for the LCD are SCL A5, SDA A4 for Arduino UNO (check your hardware specs to see which pins are I2C bus)
-
-
 //*****************************************************************************************//
 //                                      Initial Setup
 //*****************************************************************************************//
@@ -75,6 +70,8 @@ void setup()
   testLCD();
   initializeLCD();
 
+    // pinMode(ROTARY_ENCODER_PIN_A, INPUT_PULLUP);
+    // pinMode(ROTARY_ENCODER_PIN_B, INPUT_PULLUP);
   showInitScreen();
   
   //printNum(0, lcdOffset + 8); ???
