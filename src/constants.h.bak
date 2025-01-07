@@ -94,5 +94,4 @@ extern LiquidCrystal_I2C lcd;
 #endif // CONSTANTS_H
 
 // --- Build Information ---
-#define BUILD_VERSION 2.0
 #define REVISION_NUMBER 29
