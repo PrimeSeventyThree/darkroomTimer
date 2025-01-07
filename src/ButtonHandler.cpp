@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 4:52:48 pm
+ * Last Modified: Tuesday, 7th January 2025 5:11:49 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -73,47 +73,69 @@ bool checkButtonState(int buttonPin, ButtonState& state) {
  */
 
 void inputHandler() {
-    if (checkButtonState(ROTARY_ENCODER_BUTTON_PIN, encoderButtonState)) {
-        if (encoderButtonState.currentButtonState == LOW) {
-            timerDelay = 0;
-            turnEnlargerLampOff();
-        }
-    }
+    int encoderButtonPinValue = digitalRead(ROTARY_ENCODER_BUTTON_PIN);
+    int timerButtonPinValue = digitalRead(TIMER_BUTTON_PIN);
 
-    if (checkButtonState(TIMER_BUTTON_PIN, timerButtonState)) {
-        if (timerButtonState.currentButtonState == LOW) {
-            timerButtonIsPressed = true;
+    // If the switch changed, due to noise or pressing:
+    if (encoderButtonPinValue != encoderButtonState.lastButtonState || 
+        timerButtonPinValue != timerButtonState.lastButtonState) {
+        // Reset the debouncing timer
+        if (!timerButtonIsPressed) {
             timerButtonState.lastDebounceTime = millis();
-        } else if (timerButtonIsPressed) {
-            // Retrieve the last timer delay from EEPROM for comparison
-            EEPROM.get(eeAddress, storedTimerDelay);
-            if (timerDelay != storedTimerDelay) {
-                EEPROM.put(eeAddress, timerDelay);
-                DEBUG_PRINT("EEPROM updated with new timer delay.");
+        }
+    }
+
+    if ((millis() - timerButtonState.lastDebounceTime) > DEBOUNCE_DELAY) {
+        // Encoder button logic
+        if (encoderButtonPinValue != encoderButtonState.currentButtonState) {
+            encoderButtonState.currentButtonState = encoderButtonPinValue;
+            if (encoderButtonState.currentButtonState == LOW) {
+                timerDelay = 0;
+                turnEnlargerLampOff();
             }
+        }
 
-            turnOnEnlargerLamp = true; // Signals to turn on the lamp
-            time = micros(); // Added to reset timer if stopped and then started
-            timerButtonIsPressed = false;
+        // Timer button logic
+        if (timerButtonPinValue != timerButtonState.currentButtonState) {
+            timerButtonState.currentButtonState = timerButtonPinValue;
+            if (timerButtonState.currentButtonState == LOW) {
+                timerButtonState.lastDebounceTime = millis();
+                timerButtonIsPressed = true;
+            }
+        }
 
-            if ((millis() - timerButtonState.lastDebounceTime) < TURN_ENLARGER_LAMP_ON_DELAY) {
-                DEBUG_PRINT("Timer Button is Released.");
-                DEBUG_PRINT("Starting Exposure.");
-                startExposure = true; // Signals relay to start exposure
-                turnManuallyOnEnlargerLamp = true;
-                turnEnlargerLampOn();
-            } else {
-                startExposure = false;
-                DEBUG_PRINT("Timer Button is Released after a manual delay.");
-                DEBUG_PRINT(String(millis() - timerButtonState.lastDebounceTime));
-                turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
-                DEBUG_PRINT("turnManuallyOnEnlargerLamp : ");
-                DEBUG_PRINT(String(turnManuallyOnEnlargerLamp));
-                digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
+        if (timerButtonIsPressed) {
+            if (timerButtonState.currentButtonState == HIGH) {
+                storedTimerDelay = timerDelay;
+                EEPROM.put(eeAddress, storedTimerDelay);
+                turnOnEnlargerLamp = true; // Signals to turn on the lamp
+                time = micros(); // Reset timer
+                timerButtonIsPressed = false;
+
+                if ((millis() - timerButtonState.lastDebounceTime) < TURN_ENLARGER_LAMP_ON_DELAY) {
+                    DEBUG_PRINT("Timer Button is Released. Starting Exposure for " + String(timerDelay / 1000) + " seconds...");
+                    startExposure = true; // Relay control
+                    turnManuallyOnEnlargerLamp = true;
+                } else {
+                    startExposure = false;
+                    DEBUG_PRINT("Timer Button is Released after a manual delay. Elapsed Time: " + String(millis() - timerButtonState.lastDebounceTime));
+                    turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
+                    DEBUG_PRINT("turnManuallyOnEnlargerLamp: " + String(turnManuallyOnEnlargerLamp));
+                    digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
+                    turnEnlargerLampOn();
+                }
+            } else if ((millis() - timerButtonState.lastDebounceTime) > TURN_ENLARGER_LAMP_ON_DELAY) {
+                DEBUG_PRINT("Timer Button is Pressed longer than a manual delay."); 
+                digitalWrite(MANUAL_LIGHT_PIN, HIGH);
             }
         }
     }
+
+    // Save the current state for the next iteration
+    encoderButtonState.lastButtonState = encoderButtonPinValue;
+    timerButtonState.lastButtonState = timerButtonPinValue;
 }
+
 
 
 
