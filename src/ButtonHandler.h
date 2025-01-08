@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:34:52 pm
+ * Last Modified: Wednesday, 8th January 2025 7:07:34 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -44,7 +44,20 @@
 #define TIMER_BUTTON_PIN 6            // Timer start button
 #define ROTARY_ENCODER_BUTTON_PIN 4   // Rotary encoder's push button (resets timer to 0)
 
-struct ButtonState {
+/**
+ * @brief Represents the state of a button with debouncing logic.
+ * 
+ * This structure is used to manage the state of a button, including
+ * debouncing to prevent false triggers due to noise. It keeps track
+ * of the last debounce time, the debounce delay, and the button's
+ * last and current states.
+ * 
+ * @var lastDebounceTime The last time the button state was toggled.
+ * @var debounceDelay The delay in milliseconds to debounce the button.
+ * @var lastButtonState The previous state of the button.
+ * @var currentButtonState The current state of the button.
+ */
+ struct ButtonState {
     unsigned long lastDebounceTime = 0;  // Last time the output pin was toggled
     const unsigned long debounceDelay = 50;  // Debounce delay in milliseconds
     bool lastButtonState = HIGH;  // The previous reading from the input pin

@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:45 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:29:29 pm
+ * Last Modified: Wednesday, 8th January 2025 7:04:10 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -37,13 +37,25 @@
 
 MD_REncoder rotaryEncoder(ROTARY_ENCODER_PIN_A, ROTARY_ENCODER_PIN_B);
 
-void initializeEncoder() {
+/**
+ * Initializes the rotary encoder hardware.
+ *
+ * This function sets up the rotary encoder by calling its begin method,
+ * and outputs a debug message indicating the initialization process.
+ */
+ void initializeEncoder() {
     DEBUG_PRINT("Initializing Encoder...");
     rotaryEncoder.begin();
 }
 
 /**
- * @brief Reads a rotary encoder and updates the timer delay according to its rotation direction and speed.
+ * @brief Reads the rotary encoder input and adjusts the timer delay based on the rotation direction and speed.
+ * 
+ * The function reads the direction of the rotary encoder and modifies the timer delay accordingly.
+ * If speed adjustment is enabled and the encoder speed exceeds a predefined limit, the increment
+ * value is adjusted proportionally. The timer delay is decreased when the encoder is rotated
+ * counterclockwise and increased when rotated clockwise, within the bounds of the maximum delay.
+ * Debug information is printed to indicate the direction and current timer delay.
  */
 void handleEncoderInput() {
     uint8_t direction = rotaryEncoder.read();
@@ -72,6 +84,3 @@ void handleEncoderInput() {
     }
 }
 
-// bool encoderInputDetected() {
-//     return rotaryEncoder.read() != DIR_NONE;
-// }

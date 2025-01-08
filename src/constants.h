@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 3:09:25 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:35:46 pm
+ * Last Modified: Wednesday, 8th January 2025 7:19:49 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -41,7 +41,19 @@
 
 #include "DebugUtils.h" // Debug Utilities
 
-// --- Timer Configuration ---
+/**
+ * @namespace TimerConfig
+ * 
+ * @brief Contains configuration constants for timer operations.
+ * 
+ * This namespace defines constants used for configuring timer delays and increments.
+ * - `MAX_DELAY`: Maximum allowable delay for the timer, set to 9 minutes and 59 seconds in milliseconds.
+ * - `INCREMENT`: The increment value for the timer in milliseconds.
+ * - `TURN_ENLARGER_LAMP_ON_DELAY`: Delay before turning the enlarger lamp on, specified in milliseconds.
+ * - `DURATION`: Timer increment duration in microseconds, calculated as `INCREMENT` multiplied by 1000.
+ * 
+ * Note: The `EEPROM_WRITE_DELAY` is commented out and represents the minimum time between EEPROM writes in milliseconds.
+ */
 namespace TimerConfig {
     constexpr long MAX_DELAY = 599000;            // Max timer delay (9m59s in ms)
     constexpr long INCREMENT = 100;              // Timer increment in ms
@@ -50,7 +62,23 @@ namespace TimerConfig {
     //constexpr unsigned long EEPROM_WRITE_DELAY = 5000; // Min time between EEPROM writes in ms
 }
 
-// --- LCD Display Configuration ---
+/**
+ * LCD Display Configuration
+ *
+ * This section defines the configuration parameters for an LCD display
+ * using an I2C interface. It specifies the number of rows and columns
+ * of the display, the I2C address, and the starting column position
+ * for displaying large digits. Additionally, it defines the pin
+ * assignments for the LCD control and data lines.
+ *
+ * Constants:
+ * - LCD_ROWS: Number of rows in the LCD.
+ * - LCD_COLS: Number of columns in the LCD.
+ * - I2C_ADDRESS: I2C address of the LCD module.
+ * - LCD_OFFSET: Starting column position for the leftmost big digit.
+ * - RS_PIN, RW_PIN, EN_PIN, BACK_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN:
+ *   Pin assignments for the LCD control and data lines.
+ */
 #define LCD_ROWS 4                    // Number of rows in the LCD
 #define LCD_COLS 20                   // Number of columns in the LCD
 #define I2C_ADDRESS 0x27              // I2C address of the LCD module
@@ -64,6 +92,9 @@ namespace TimerConfig {
 #define D6_PIN 6
 #define D7_PIN 7
 
+// --- LCD Instance ---
+extern LiquidCrystal_I2C lcd; 
+
 // --- Global Variables ---
 extern unsigned long _micro;
 extern unsigned long time;
@@ -76,13 +107,10 @@ extern volatile bool timerButtonIsPressed;       // Tracks the timer button stat
 extern long timerDelay;           // Current timer delay
 extern long storedTimerDelay;     // Last stored timer value
 extern unsigned long lastEEPROMWrite;  // Tracks the last EEPROM write time
-extern int eeAddress;             // EEPROM memory location for exposure time persistence
-
-// --- LCD Instance ---
-extern LiquidCrystal_I2C lcd;
+extern int eeAddress;             // EEPROM address to store timer delay
 
 #endif // CONSTANTS_H
 
 // --- Build Information ---
 #define BUILD_VERSION 2.0
-#define REVISION_NUMBER 35
+#define REVISION_NUMBER 36

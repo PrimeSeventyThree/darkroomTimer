@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 4:42:17 pm
+ * Last Modified: Wednesday, 8th January 2025 7:16:08 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -30,23 +30,29 @@
  * HISTORY:
  */
 
-//********************************************************************************
-//
-//    DARKROOM EXPOSURE TIMER
-//    Andrei Grichine, December 2017
-//
-//    this code is based on:
-//    BIG FONT (4-line) LCD CHARACTERS
-//    http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/
-//    Adrian Jones, February 2015
-//
-//    REQUIREMENTS:
-//    MD_REncoder - Rotary Encoder Library (https://github.com/MajicDesigns/MD_REncoder)
-//    New-LiquidCrystal - LCD Library for Arduino and Chipkit (https://github.com/fmalpartida/New-LiquidCrystal)
-//********************************************************************************
-
-//********************************************************************************
-
+/**
+ * @brief Implements a darkroom enlarger timer using an Arduino.
+ * 
+ * This program controls a darkroom enlarger timer, utilizing a rotary encoder
+ * for input and an LCD for display. It manages the exposure timing and updates
+ * the display with large digits. The setup function initializes the necessary
+ * hardware components, while the loop function handles user input and manages
+ * the exposure process.
+ * 
+ * The code is based on the BIG FONT (4-line) LCD CHARACTERS project by Adrian Jones,
+ * which can be found at http://woodsgood.ca/projects/2015/02/27/4-line-lcd-big-numbers/.
+ * 
+ * Requirements:
+ * - MD_REncoder: Rotary Encoder Library (https://github.com/MajicDesigns/MD_REncoder)
+ * - New-LiquidCrystal: LCD Library for Arduino and Chipkit (https://github.com/fmalpartida/New-LiquidCrystal)
+ * 
+ * Debugging can be enabled by defining the DEBUG macro.
+ * 
+ * Author: Andrei Grichine
+ * Date Created: December 2017
+ * Last Modified: January 8, 2025
+ * License: MIT License
+ */
 #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 
 #include "src/DebugUtils.h" // Debug Utils
@@ -56,9 +62,13 @@
 #include "src/LCDHandler.h"
 #include "src/LampControl.h"
 
-//*****************************************************************************************//
-//                                      Initial Setup
-//*****************************************************************************************//
+/**
+ * @brief Initializes the system components and prepares the environment.
+ * 
+ * This function sets up the serial communication, seeds the random number generator,
+ * and initializes various hardware components such as the LCD, buttons, and encoder.
+ * It also tests the LCD and enlarger lamp to ensure they are functioning correctly.
+ */
 void setup()
 {
   Serial.begin(115200);
@@ -74,10 +84,6 @@ void setup()
   initializeEncoder();
   testEnlargerLamp();
 }
-
-/**
- *                                      MAIN LOOP
- */
 
 void loop() {
     // Handle input from buttons and rotary encoder

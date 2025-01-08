@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:30:53 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:35:57 pm
+ * Last Modified: Wednesday, 8th January 2025 7:12:04 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -35,7 +35,13 @@
 #ifndef LAMP_CONTROL_H
 #define LAMP_CONTROL_H
 
-// --- Relay Configuration ---
+/**
+ * Relay Configuration
+ *
+ * Defines the pin numbers for controlling the relay and indicating manual light mode.
+ * RELAY_PIN is used to control the enlarger lamp.
+ * MANUAL_LIGHT_PIN is used as an indicator (LED) for manual light mode.
+ */
 #define RELAY_PIN 7                   // Relay pin to control the enlarger lamp
 #define MANUAL_LIGHT_PIN 8            // Indicator pin for manual light mode
 

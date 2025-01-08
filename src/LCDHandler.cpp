@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:17:24 pm
+ * Last Modified: Wednesday, 8th January 2025 7:02:28 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -47,6 +47,8 @@ const byte segmentPatterns[7][8] PROGMEM = {
 };
 // 0xFE - 5x8 segment is OFF
 // 0xFF - 5x8 segment is ON
+
+const int NUM_CUSTOM_CHARS = sizeof(segmentPatterns) / sizeof(segmentPatterns[0]); // NUM_CUSTOM_CHARS = 7
 
 /*
 EXAMPLE
@@ -209,10 +211,14 @@ void printDot(byte leftAdjust)
 }
 
 /**
- * @brief Displays a big digit on the LCD.
+ * @brief Displays a large representation of a digit on the LCD screen.
  * 
- * @param digit The digit to display (0-9).
- * @param position The starting column position for the digit.
+ * This function renders a specified digit (0-9) as a large character
+ * on the LCD, starting at the given column position. It ensures the
+ * digit is valid and uses custom characters to create the display.
+ * 
+ * @param digit The digit to display, ranging from 0 to 9.
+ * @param position The starting column position on the LCD for the digit.
  */
 void showBigDigit(uint8_t digit, uint8_t position) {
     if (digit > 9) return; // Ensure the digit is valid
@@ -230,7 +236,11 @@ void showBigDigit(uint8_t digit, uint8_t position) {
 }
 
 /**
- * @brief Clears a big digit from the LCD.
+ * @brief Clears a large digit from the LCD display.
+ * 
+ * This function iterates over the rows and columns of a specified
+ * position on the LCD to replace the existing digit with spaces,
+ * effectively clearing it from the display.
  * 
  * @param position The starting column position for the digit to clear.
  */
@@ -246,7 +256,15 @@ void clearBigDigit(uint8_t position) {
     }
 }
 
-void testLCD() {
+/**
+ * @brief Tests the LCD by blinking its backlight three times.
+ * 
+ * This function performs a quick test of the LCD's backlight by
+ * turning it on and off three times, with a delay of 250 milliseconds
+ * between each state change. The function concludes with the backlight
+ * remaining on.
+ */
+ void testLCD() {
   // ------- Quick 3 blinks of an LCD's backlight  -------------
   for (int i = 0; i < 3; i++)
   {
@@ -258,26 +276,32 @@ void testLCD() {
   lcd.backlight(); // finish with backlight on
 }
 
+/**
+ * @brief Initializes the LCD by setting up the display, turning on the backlight,
+ *        clearing the screen, and creating custom characters in the LCD's memory.
+ */
 void initializeLCD() {
-    lcd.begin(20, 4);
-    lcd.backlight();
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(F("Darkroom Timer"));
+  lcd.begin(20, 4);
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F("Darkroom Timer"));
 
-    // Create custom characters in the LCD's memory
-    for (byte i = 0; i < 7; i++) {
-        for (byte j = 0; j < 8; j++) {
-            bb[j] = pgm_read_byte(&segmentPatterns[i][j]);
-        }
+  // Create custom characters in the LCD's memory
+    for (byte i = 0; i < NUM_CUSTOM_CHARS; i++)
+      {
+        memcpy_P(bb, segmentPatterns[i], 8);
         lcd.createChar(i + 1, bb);
-    }
+      }
 }
 
 /**
- * @brief Shows the initialization screen.
+ * @brief Displays the initialization screen on the LCD and logs available memory.
+ * 
+ * This function sets up the LCD to show a dot and the text "SEC" at specified positions.
+ * It also outputs a message to the serial monitor indicating that the Darkroom Timer
+ * is initialized and prints the available memory in bytes.
  */
-
 void showInitScreen()
 {
   printDot(LCD_OFFSET + 7);
@@ -289,7 +313,13 @@ void showInitScreen()
 }
 
 /**
- * @brief Shows the Darkroom Timer splash screen.
+ * @brief Displays the splash screen for the Darkroom Exposure Timer.
+ * 
+ * This function clears the LCD screen and prints the title "DARKROOM" and 
+ * "EXPOSURE TIMER" on the first two lines. It then shows the last stored 
+ * delay in seconds on the third line, followed by the build version, 
+ * revision number, and available free RAM in bytes on the fourth line. 
+ * The splash screen is displayed for 2 seconds before the screen is cleared.
  */
 void displaySplashScreen() {
     lcd.clear();
@@ -318,7 +348,16 @@ void displaySplashScreen() {
 }
 
 
-
+/**
+ * @brief Displays the hundreds, tens, and units digits of a given delay value on an LCD.
+ *
+ * The function extracts the hundreds, tens, and units digits from the provided
+ * delay value and displays each digit on the LCD using the `printNum` function.
+ * The digits are displayed in their respective positions: hundreds at position 0,
+ * tens at position 6, and units at position 12.
+ *
+ * @param delay The delay value from which the digits are extracted and displayed.
+ */
 void displayBigNumbers(long delay) {
     // Split delay into individual digits
     byte digits[3] = {0};
@@ -332,7 +371,14 @@ void displayBigNumbers(long delay) {
     printNum(digits[2], 12);  // Units position
 }
 
-
+/**
+ * @brief Updates the timer display on the LCD by calculating and displaying the 
+ * digits representing the remaining time. The function calculates the 
+ * tens, ones, and tenths place digits from the timer delay and updates 
+ * the display only if the seconds remaining have changed. It uses 
+ * `showBigDigit` to display non-zero digits and `clearBigDigit` to clear 
+ * positions when necessary.
+ */
 void updateTimerDisplay() {
     // Calculate digits
     uint8_t se = timerDelay / 100; // Seconds remaining

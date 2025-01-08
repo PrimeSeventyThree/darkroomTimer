@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:37 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:33:37 pm
+ * Last Modified: Wednesday, 8th January 2025 7:10:38 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -37,7 +37,20 @@
 
 #include <MD_REncoder.h>
 
-// Rotary Encoder Configuration
+/**
+ * @brief Configures the rotary encoder pins and speed limit.
+ * 
+ * Defines the pins used for the rotary encoder and sets a speed limit
+ * to control sensitivity. The speed limit is used to adjust the increment
+ * value based on the current speed to prevent excessive sensitivity when
+ * setting the timer delay.
+ * 
+ * @define ROTARY_ENCODER_PIN_A Pin number for the left pin (A) of the rotary encoder.
+ * @define ROTARY_ENCODER_PIN_B Pin number for the right pin (B) of the rotary encoder.
+ * @define ROTARY_ENCODER_SPEED_LIMIT Speed threshold for adjusting the increment value.
+ * 
+ * @extern MD_REncoder rotaryEncoder An external instance of the MD_REncoder class.
+ */
 #define ROTARY_ENCODER_PIN_A 3 // left pin (A)
 #define ROTARY_ENCODER_PIN_B 2 // right pin (B)
 

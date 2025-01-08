@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:21:42 pm
+ * Last Modified: Wednesday, 8th January 2025 6:40:20 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -32,6 +32,8 @@
  * HISTORY:
  */
 
+
+
 #include "LampControl.h"
 #include "constants.h"
 #include <Arduino.h>
@@ -40,7 +42,11 @@
 extern LiquidCrystal_I2C lcd;
 
 /**
- * @brief Tests the enlarger lamp
+ * @brief Tests the enlarger lamp by toggling the relay pin.
+ *
+ * This function sets the relay pin to output mode and turns it on for 1 second
+ * to test the enlarger lamp. After the delay, it turns the relay off and sets
+ * the manual light pin to output mode.
  */
 void testEnlargerLamp() {
     pinMode(RELAY_PIN, OUTPUT);
@@ -52,6 +58,11 @@ void testEnlargerLamp() {
  
 /**
  *  @brief Turns the enlarger lamp on if it is not manually turned off.
+ * 
+ * This function first checks if the lamp is manually turned off. If not, it
+ * ensures the lamp is turned off before proceeding. If the lamp is set to be
+ * turned on, it activates the lamp by setting the relay pin high and turns off
+ * the LCD backlight. The flag to turn on the lamp is then reset.
  */
 void turnEnlargerLampOn() {
     if (!turnManuallyOnEnlargerLamp) {
@@ -66,7 +77,12 @@ void turnEnlargerLampOn() {
 }
 
 /**
- * @brief Handles the Enlarger Lamp.
+ * @brief Handles the operation of the enlarger lamp based on manual control and timer settings.
+ * 
+ * This function turns on the enlarger lamp if it is not manually turned off. It checks
+ * if the exposure timer has reached its configured duration and adjusts the timer delay
+ * accordingly. If the timer delay reaches its minimum increment, the lamp is turned off
+ * and exposure is stopped.
  */
 void handleEnlargerLamp() {
     // Turn on the enlarger lamp if it's not already manually turned off
@@ -95,9 +111,12 @@ void handleEnlargerLamp() {
 }
 
 /**
- * @brief Turns the enlarger lamp off.
+ * @brief Turns off the enlarger lamp and resets related states.
+ *
+ * This function deactivates the enlarger lamp by setting the relay and manual light pins to LOW,
+ * and turns on the LCD backlight. It also resets various control flags, including those for
+ * starting exposure, turning on the enlarger lamp, manual lamp control, and the timer button state.
  */
-
 void turnEnlargerLampOff() {
     DEBUG_PRINT("Turning enlarger lamp OFF");
     startExposure = false;

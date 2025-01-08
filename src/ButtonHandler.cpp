@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 7:30:43 pm
+ * Last Modified: Wednesday, 8th January 2025 7:06:19 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -41,6 +41,13 @@
 ButtonState encoderButtonState;
 ButtonState timerButtonState;
 
+/**
+ * Initializes button pins and restores the stored timer delay from EEPROM.
+ *
+ * Configures the timer and rotary encoder button pins as input with pull-up
+ * resistors. Retrieves the previously stored timer delay value from EEPROM
+ * and assigns it to the timerDelay variable.
+ */
 void initializeButtons() {
     pinMode(TIMER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
@@ -50,15 +57,18 @@ void initializeButtons() {
 }
 
 /**
- * @brief Function to debounce the button input
+ * @brief Debounces the button input to prevent false triggering due to noise.
  * 
- * @param buttonPin The pin number of the button
- * @param state The state of the button
- * @return true
- * @return false 
+ * This function reads the current state of a button and determines if the 
+ * state has changed after a specified debounce delay. It updates the button 
+ * state and returns whether the state has changed.
+ * 
+ * @param buttonPin The pin number connected to the button.
+ * @param state A reference to the ButtonState structure holding the button's 
+ *              current and last states, as well as the last debounce time.
+ * @return true if the button state has changed, false otherwise.
  */
-
-bool debounceButton(int buttonPin, ButtonState& state) {
+ bool debounceButton(int buttonPin, ButtonState& state) {
     int reading = digitalRead(buttonPin);
     bool stateChanged = false;
 
@@ -78,9 +88,12 @@ bool debounceButton(int buttonPin, ButtonState& state) {
 }
 
 /**
- * @brief Handles the input from the rotary encoder and the timer button.
+ * @brief Processes input from the rotary encoder and timer button to control the enlarger lamp.
+ * 
+ * This function checks the states of the rotary encoder button and the timer button.
+ * It debounces the button inputs and manages the logic for turning the enlarger lamp on or off.
+ * The function also handles storing the timer delay in EEPROM and manages manual lamp control.
  */
-
 void inputHandler() {
     // Check the encoder button state
     if (debounceButton(ROTARY_ENCODER_BUTTON_PIN, encoderButtonState)) {
@@ -127,9 +140,13 @@ void inputHandler() {
 }
 
 /**
- * @brief Function to handle specific logic when the timer button state changes
-*/
-
+ * @brief Handles the logic for when the timer button is pressed.
+ * 
+ * This function manages the state transitions and actions to be taken
+ * when the timer button is pressed. It updates the stored timer delay
+ * in EEPROM, controls the enlarger lamp, and manages the exposure start
+ * based on the debounce time and current button state.
+ */
 void handleTimerButtonLogic() {
     if (timerButtonIsPressed) {
         if (timerButtonState.currentButtonState == HIGH) {

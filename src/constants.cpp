@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 11:28:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 1:23:35 pm
+ * Last Modified: Wednesday, 8th January 2025 7:18:43 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -34,20 +34,26 @@
 
 #include "constants.h"
 
-// --- Global Variables ---
-unsigned long _micro = 0;
-unsigned long time = 0;
+/*
+ * This file defines global variables and initializes an LCD instance for the
+ * Darkroom Enlarger Timer project. It includes variables for tracking time,
+ * timer delays, EEPROM write times, and various flags for controlling the
+ * enlarger lamp and timer button states. The LiquidCrystal_I2C object is
+ * configured with specific pin assignments for interfacing with an LCD.
+ */
+unsigned long _micro = 0;     // Microseconds counter
+unsigned long time = 0;        // Current time
 
 long timerDelay = 0;           // Current timer delay
 long storedTimerDelay = 0;     // Last stored timer value
 
 unsigned long lastEEPROMWrite = 0;  // Tracks the last EEPROM write time
-int eeAddress = 0;
+int eeAddress = 0;                 // EEPROM address to store timer delay
 
-volatile bool startExposure = false;
-volatile bool turnOnEnlargerLamp = false;
-volatile bool turnManuallyOnEnlargerLamp = false;
-volatile bool timerButtonIsPressed = false;
+volatile bool startExposure = false; // Flag to start the exposure timer
+volatile bool turnOnEnlargerLamp = false; // Flag to turn on the enlarger lamp
+volatile bool turnManuallyOnEnlargerLamp = false; // Flag to turn on the enlarger lamp manually
+volatile bool timerButtonIsPressed = false; // Flag to indicate the timer button is pressed
 
 // --- LCD Instance ---
 LiquidCrystal_I2C lcd(I2C_ADDRESS, EN_PIN, RW_PIN, RS_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN, BACK_PIN, POSITIVE);
