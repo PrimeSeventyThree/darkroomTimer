@@ -1,10 +1,10 @@
 /*
- * File: LCDHandler.cpp
+ * File: lcdHandler.cpp
  * Project: Darkroom Enlarger Timer
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 4:50:35 pm
+ * Last Modified: Tuesday, 7th January 2025 7:17:24 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -338,7 +338,7 @@ void updateTimerDisplay() {
     uint8_t se = timerDelay / 100; // Seconds remaining
     uint8_t thirdDigit = timerDelay / 10000;                             // 10s place
     uint8_t secondDigit = (timerDelay % 10000) / 1000;                  // 1s place
-    uint8_t firstDigit = (timerDelay % 1000) / TIMER_INCREMENT;               // 0.1s place
+    uint8_t firstDigit = (timerDelay % 1000) / TimerConfig::INCREMENT;               // 0.1s place
 
     // Update only if seconds remaining have changed
     static uint8_t previousSe = 255, previousThirdDigit = 255, previousSecondDigit = 255, previousFirstDigit = 255;

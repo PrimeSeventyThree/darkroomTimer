@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:45 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 4:31:10 pm
+ * Last Modified: Tuesday, 7th January 2025 7:29:29 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -47,7 +47,7 @@ void initializeEncoder() {
  */
 void handleEncoderInput() {
     uint8_t direction = rotaryEncoder.read();
-    uint32_t tempIncrement = TIMER_INCREMENT; // Local copy of increment value
+    uint32_t tempIncrement = TimerConfig::INCREMENT; // Local copy of increment value
 
     if (direction) {
         // Adjust increment based on speed if enabled
@@ -62,7 +62,7 @@ void handleEncoderInput() {
             DEBUG_PRINT("CCW ");
         } else if (direction == DIR_CW) {
             // Increase timer delay when moving clockwise
-            timerDelay = timerDelay + tempIncrement < MAX_TIMER_DELAY ? timerDelay + tempIncrement : MAX_TIMER_DELAY;
+            timerDelay = timerDelay + tempIncrement < TimerConfig::MAX_DELAY ? timerDelay + tempIncrement : TimerConfig::MAX_DELAY;
             DEBUG_PRINT("CW ");
         }
 

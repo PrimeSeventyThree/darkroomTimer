@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 3:09:25 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 4:37:59 pm
+ * Last Modified: Tuesday, 7th January 2025 7:35:46 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -42,13 +42,13 @@
 #include "DebugUtils.h" // Debug Utilities
 
 // --- Timer Configuration ---
-#define MAX_TIMER_DELAY 599000        // 9 minutes and 59 seconds in milliseconds
-#define TIMER_INCREMENT 100           // Milliseconds increment for timer delay adjustment
-#define TURN_ENLARGER_LAMP_ON_DELAY 2000 // Delay before turning the enlarger lamp ON
-const unsigned long DURATION = 100000;  // Timer increment in microseconds (100000us = 100ms)
-
-// --- Button Debounce Configuration ---
-#define DEBOUNCE_DELAY 50             // Debounce time in milliseconds
+namespace TimerConfig {
+    constexpr long MAX_DELAY = 599000;            // Max timer delay (9m59s in ms)
+    constexpr long INCREMENT = 100;              // Timer increment in ms
+    constexpr unsigned long TURN_ENLARGER_LAMP_ON_DELAY = 2000; // Delay before turning enlarger lamp on
+    constexpr long DURATION = INCREMENT*1000; // Timer increment in microseconds
+    //constexpr unsigned long EEPROM_WRITE_DELAY = 5000; // Min time between EEPROM writes in ms
+}
 
 // --- LCD Display Configuration ---
 #define LCD_ROWS 4                    // Number of rows in the LCD
@@ -63,19 +63,6 @@ const unsigned long DURATION = 100000;  // Timer increment in microseconds (1000
 #define D5_PIN 5
 #define D6_PIN 6
 #define D7_PIN 7
-
-// --- Relay Configuration ---
-#define RELAY_PIN 7                   // Relay pin to control the enlarger lamp
-#define MANUAL_LIGHT_PIN 8            // Indicator pin for manual light mode
-
-// --- Button Configuration ---
-#define TIMER_BUTTON_PIN 6            // Timer start button
-#define ROTARY_ENCODER_BUTTON_PIN 4   // Rotary encoder's push button (resets timer to 0)
-
-// --- Rotary Encoder Configuration ---
-#define ROTARY_ENCODER_PIN_ONE 3      // Left pin (A)
-#define ROTARY_ENCODER_PIN_TWO 2      // Right pin (B)
-#define ROTARY_ENCODER_SPEED_LIMIT 2  // Speed threshold for rotary encoder sensitivity
 
 // --- Global Variables ---
 extern unsigned long _micro;
@@ -98,4 +85,4 @@ extern LiquidCrystal_I2C lcd;
 
 // --- Build Information ---
 #define BUILD_VERSION 2.0
-#define REVISION_NUMBER 34
+#define REVISION_NUMBER 35

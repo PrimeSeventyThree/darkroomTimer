@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 3:50:55 pm
+ * Last Modified: Tuesday, 7th January 2025 7:21:42 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -74,18 +74,18 @@ void handleEnlargerLamp() {
         turnEnlargerLampOn();
     }
 
-    // Check if the exposure timer has reached its duration
-    if ((micros() - time) >= DURATION) {
+    // Check if the exposure timer has reached its TimerConfig::DURATION
+    if ((micros() - time) >= TimerConfig::DURATION) {
         // Reset the timer if micros() has rolled over
         if (micros() < time) {
             time = micros();
         } else {
-            time += DURATION;
+            time += TimerConfig::DURATION;
         }
 
         // Decrease the timer delay
-        if (timerDelay > TIMER_INCREMENT) {
-            timerDelay -= TIMER_INCREMENT;
+        if (timerDelay > TimerConfig::INCREMENT) {
+            timerDelay -= TimerConfig::INCREMENT;
         } else {
             timerDelay = storedTimerDelay; // Reset to stored value
             turnEnlargerLampOff();

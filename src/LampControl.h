@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:30:53 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:28:38 pm
+ * Last Modified: Tuesday, 7th January 2025 7:35:57 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -34,6 +34,10 @@
 
 #ifndef LAMP_CONTROL_H
 #define LAMP_CONTROL_H
+
+// --- Relay Configuration ---
+#define RELAY_PIN 7                   // Relay pin to control the enlarger lamp
+#define MANUAL_LIGHT_PIN 8            // Indicator pin for manual light mode
 
 void testEnlargerLamp();
 void turnEnlargerLampOn();
