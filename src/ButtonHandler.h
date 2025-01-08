@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:07:34 am
+ * Last Modified: Wednesday, 8th January 2025 7:30:55 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -38,7 +38,7 @@
 #include <Arduino.h>
 
 // --- Button Debounce Configuration ---
-#define DEBOUNCE_DELAY 50             // Debounce time in milliseconds
+constexpr unsigned long DEBOUNCE_DELAY = 50;             // Debounce time in milliseconds
 
 // --- Buttons Configuration ---
 #define TIMER_BUTTON_PIN 6            // Timer start button
