@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:30:55 am
+ * Last Modified: Wednesday, 8th January 2025 8:05:36 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -41,9 +41,9 @@
 constexpr unsigned long DEBOUNCE_DELAY = 50;             // Debounce time in milliseconds
 
 // --- Buttons Configuration ---
-#define TIMER_BUTTON_PIN 6            // Timer start button
-#define ROTARY_ENCODER_BUTTON_PIN 4   // Rotary encoder's push button (resets timer to 0)
-
+constexpr int TIMER_BUTTON_PIN = 6;           // Timer start button
+constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (resets timer to 0)
+ 
 /**
  * @brief Represents the state of a button with debouncing logic.
  * 
@@ -64,7 +64,7 @@ constexpr unsigned long DEBOUNCE_DELAY = 50;             // Debounce time in mil
     bool currentButtonState = HIGH;  // Current state of the button
 };
 void initializeButtons();
-bool checkButtonState(int buttonPin, ButtonState& state);
+bool checkButtonState(uint8_t buttonPin, ButtonState& state);
 void inputHandler();
 void handleTimerButtonLogic();
 

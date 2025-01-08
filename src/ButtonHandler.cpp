@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:30:04 am
+ * Last Modified: Wednesday, 8th January 2025 8:13:15 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -68,29 +68,31 @@ void initializeButtons() {
  *              current and last states, as well as the last debounce time.
  * @return true if the button state has changed, false otherwise.
  */
-bool debounceButton(int buttonPin, ButtonState& state) {
+bool debounceButton(uint8_t buttonPin, ButtonState& state) {
     // Check if the button pin is valid
-    if (buttonPin < 0 || buttonPin >= NUM_DIGITAL_PINS) {
+    if (buttonPin >= NUM_DIGITAL_PINS) {
         return false; // Invalid pin number
     }
+    // Read the current time once for consistent time checks
+    unsigned long currentMillis = millis();
     // Read the current state of the button
-    int reading = digitalRead(buttonPin);
+    int newReading = digitalRead(buttonPin);
     bool stateChanged = false;
 
     // If the button state has changed, reset the debouncing timer
-    if (reading != state.lastButtonState) {
-        state.lastDebounceTime = millis();
+    if (newReading != state.lastButtonState) {
+        state.lastDebounceTime = currentMillis;
     }
 
     // Check if the button state is stable for longer than the debounce delay
-    if ((millis() - state.lastDebounceTime) > DEBOUNCE_DELAY && reading != state.currentButtonState) {
+    if ((currentMillis - state.lastDebounceTime) > DEBOUNCE_DELAY && newReading != state.currentButtonState) {
         // Update the current button state and mark state as changed
-        state.currentButtonState = reading;
+        state.currentButtonState = newReading;
         stateChanged = true;
     }
 
     // Save the current reading as the last button state
-    state.lastButtonState = reading;
+    state.lastButtonState = newReading;
     return stateChanged;
 }
 
