@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Thursday, 9th January 2025 6:39:59 pm
+ * Last Modified: Sunday, 12th January 2025 1:52:38 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -119,7 +119,6 @@ void turnEnlargerLampOff() {
     startExposure = false;
     turnOnEnlargerLamp = false;
     turnManuallyOnEnlargerLamp = false;
-    timerButtonIsPressed = false;
     digitalWrite(RELAY_PIN, LOW);
     digitalWrite(MANUAL_LIGHT_PIN, LOW);
     lcd.backlight();

@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 3:09:25 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:19:49 am
+ * Last Modified: Sunday, 12th January 2025 1:52:52 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -102,7 +102,6 @@ extern unsigned long time;
 extern volatile bool startExposure;
 extern volatile bool turnOnEnlargerLamp;         // Flag for automatic lamp control
 extern volatile bool turnManuallyOnEnlargerLamp; // Flag for manual lamp control
-extern volatile bool timerButtonIsPressed;       // Tracks the timer button state
 
 extern long timerDelay;           // Current timer delay
 extern long storedTimerDelay;     // Last stored timer value
@@ -113,4 +112,4 @@ extern int eeAddress;             // EEPROM address to store timer delay
 
 // --- Build Information ---
 #define BUILD_VERSION 2.0
-#define REVISION_NUMBER 39
+#define REVISION_NUMBER 40

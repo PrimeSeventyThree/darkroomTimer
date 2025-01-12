@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Thursday, 9th January 2025 6:38:26 pm
+ * Last Modified: Sunday, 12th January 2025 2:05:11 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -106,6 +106,7 @@ bool debounceButton(uint8_t buttonPin, ButtonState& state) {
 void handleEncoderButton() {
     if (debounceButton(ROTARY_ENCODER_BUTTON_PIN, encoderButtonState) && encoderButtonState.currentButtonState == LOW) {
         timerDelay = 0;
+        timerButtonState.buttonIsPressed = false;
         turnEnlargerLampOff();
     }
 }
@@ -120,7 +121,7 @@ void handleEncoderButton() {
  */
 void handleTimerButtonPress() {
     if (debounceButton(TIMER_BUTTON_PIN, timerButtonState) && timerButtonState.currentButtonState == LOW) {
-        timerButtonIsPressed = true;
+        timerButtonState.buttonIsPressed = true;
         timerButtonState.lastDebounceTime = millis();
     }
 }
@@ -138,15 +139,17 @@ void processTimerButtonRelease() {
         EEPROM.put(eeAddress, storedTimerDelay);
         turnOnEnlargerLamp = true;
         time = micros();
-        timerButtonIsPressed = false;
+        timerButtonState.buttonIsPressed = false;
 
         unsigned long elapsedTime = millis() - timerButtonState.lastDebounceTime;
         if (elapsedTime < TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
+            // **Short Press Logic**
             DEBUG_PRINT("Timer Button is Released. Starting Exposure for " + String(timerDelay) + " milliseconds...");
             startExposure = true;
             turnManuallyOnEnlargerLamp = true;
+            digitalWrite(MANUAL_LIGHT_PIN, HIGH);
         } else {
-            startExposure = false;
+            // **Long Press Logic**
             DEBUG_PRINT("Timer Button is Released after a manual delay. Elapsed Time: " + String(elapsedTime));
             turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
             DEBUG_PRINT("turnManuallyOnEnlargerLamp: " + String(turnManuallyOnEnlargerLamp));
@@ -167,7 +170,9 @@ void processTimerButtonRelease() {
 void handleLongPress() {
     if ((millis() - timerButtonState.lastDebounceTime) > TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
         DEBUG_PRINT("Timer Button is Pressed longer than a manual delay.");
-        digitalWrite(MANUAL_LIGHT_PIN, HIGH);
+        // Toggle the manual mode
+        turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
+        digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
     }
 }
 
@@ -182,41 +187,7 @@ void inputHandler() {
     handleEncoderButton();
     handleTimerButtonPress();
 
-    if (timerButtonIsPressed) {
+    if (timerButtonState.buttonIsPressed) {
         processTimerButtonRelease();
-        handleLongPress();
-    }
-}
-
-/**
- * @brief Handles the logic for when the timer button is pressed.
- * 
- * This function manages the state transitions and actions to be taken
- * when the timer button is pressed. It updates the stored timer delay
- * in EEPROM, controls the enlarger lamp, and manages the exposure start
- * based on the debounce time and current button state.
- */
-void handleTimerButtonLogic() {
-    if (!timerButtonIsPressed) return;
-
-    unsigned long elapsedTime = millis() - timerButtonState.lastDebounceTime;
-    if (timerButtonState.currentButtonState == HIGH) {
-        storedTimerDelay = timerDelay;
-        EEPROM.put(eeAddress, storedTimerDelay);
-        turnOnEnlargerLamp = true;
-        time = micros();
-        timerButtonIsPressed = false;
-
-        if (elapsedTime < TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
-            startExposure = true;
-            turnManuallyOnEnlargerLamp = true;
-        } else {
-            startExposure = false;
-            turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
-            digitalWrite(MANUAL_LIGHT_PIN, LOW);
-            turnEnlargerLampOn();
-        }
-    } else if (elapsedTime > TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
-        digitalWrite(MANUAL_LIGHT_PIN, HIGH);
     }
 }

@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 8:05:36 am
+ * Last Modified: Sunday, 12th January 2025 2:04:37 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -62,6 +62,8 @@ constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (r
     const unsigned long debounceDelay = 50;  // Debounce delay in milliseconds
     bool lastButtonState = HIGH;  // The previous reading from the input pin
     bool currentButtonState = HIGH;  // Current state of the button
+    bool buttonIsPressed = false;       // Tracks the button state
+
 };
 void initializeButtons();
 bool checkButtonState(uint8_t buttonPin, ButtonState& state);
