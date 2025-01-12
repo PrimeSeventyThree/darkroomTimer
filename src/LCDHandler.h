@@ -1,10 +1,10 @@
 /*
- * File: lcdHandler.h
+ * File: LCDHandler.h
  * Project: Darkroom Enlarger Timer
  * File Created: Tuesday, 31st December 2024 2:55:19 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:15:56 pm
+ * Last Modified: Sunday, 12th January 2025 10:33:52 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -40,8 +40,8 @@
 // Function declarations
 void testLCD();
 void initializeLCD();
-void showInitScreen();
-void showSplashScreen();
+void displayStaticText();
+void displaySplashScreen();
 void updateTimerDisplay();
 void showBigDigit(uint8_t digit, uint8_t position);
 void clearBigDigit(uint8_t position);

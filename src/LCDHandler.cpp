@@ -1,10 +1,10 @@
 /*
- * File: lcdHandler.cpp
+ * File: LCDHandler.cpp
  * Project: Darkroom Enlarger Timer
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:02:28 am
+ * Last Modified: Sunday, 12th January 2025 10:32:44 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -147,16 +147,15 @@ int freeRam()
  * @param digit A digit to print.
  * @param leftAdjust A left adjustment of a digit.
  */
-void printNum(byte digit, byte leftAdjust)
-{
-  for (byte row = 0; row < 4; row++)
-  {
-    lcd.setCursor(leftAdjust, row);
-    for (byte col = digit * 3; col < digit * 3 + 3; col++)
-    {
-      lcd.write(pgm_read_byte(&bigNumbers[row][col]));
+void printNum(byte digit, byte leftAdjust) {
+    // Iterate over each of the 4 rows of the LCD
+    for (byte row = 0; row < 4; ++row) {
+        lcd.setCursor(leftAdjust, row); // Set cursor position
+        // Write the graphical representation of the digit
+        for (byte col = 0; col < 3; ++col) {
+            lcd.write(pgm_read_byte(&bigNumbers[row][digit * 3 + col]));
+        }
     }
-  }
 }
 
 /**
@@ -164,15 +163,10 @@ void printNum(byte digit, byte leftAdjust)
  *
  * @param leftAdjust A left adjustment of a digit.
  */
-void eraseNum(byte leftAdjust)
-{
-  for (byte row = 0; row < 4; row++)
-  {
+void eraseNum(byte leftAdjust) {
+  for (byte row = 0; row < 4; ++row) {
     lcd.setCursor(leftAdjust, row);
-    for (byte col = leftAdjust; col < leftAdjust + 3; col++)
-    {
-      lcd.print(F(" "));
-    }
+    lcd.print(F("   ")); // Print three spaces in one call
   }
 }
 
@@ -181,15 +175,10 @@ void eraseNum(byte leftAdjust)
  *
  * @param leftAdjust A left adjustment of a colon.
  */
-void printColon(byte leftAdjust)
-{
-  for (byte row = 0; row < 4; row++)
-  {
+void printColon(byte leftAdjust) {
+  for (byte row = 0; row < 4; row++) {
     lcd.setCursor(leftAdjust, row);
-    if (row == 1 || row == 2)
-      lcd.print(F("."));
-    else
-      lcd.print(F(" "));
+    lcd.print((row == 1 || row == 2) ? F(".") : F(" "));
   }
 }
 
@@ -198,15 +187,10 @@ void printColon(byte leftAdjust)
  *
  * @param leftAdjust A left adjustment of a dot.
  */
-void printDot(byte leftAdjust)
-{
-  for (byte row = 0; row < 4; row++)
-  {
+void printDot(byte leftAdjust) {
+  for (byte row = 0; row < 4; row++) {
     lcd.setCursor(leftAdjust, row);
-    if (row == 3)
-      lcd.print(F("."));
-    else
-      lcd.print(F(" "));
+    lcd.print((row == 3) ? F(".") : F(" "));
   }
 }
 
@@ -224,11 +208,11 @@ void showBigDigit(uint8_t digit, uint8_t position) {
     if (digit > 9) return; // Ensure the digit is valid
 
     // Iterate over each row of the big digit
-    for (uint8_t row = 0; row < 4; row++) {
+    for (uint8_t row = 0; row < 4; ++row) {
         lcd.setCursor(position, row); // Set cursor to the appropriate position
 
         // Write the corresponding custom characters to the LCD
-        for (uint8_t col = 0; col < 3; col++) {
+        for (uint8_t col = 0; col < 3; ++col) {
             uint8_t charIndex = pgm_read_byte(&bigNumbers[row][digit * 3 + col]);
             lcd.write(charIndex);
         }
@@ -246,13 +230,9 @@ void showBigDigit(uint8_t digit, uint8_t position) {
  */
 void clearBigDigit(uint8_t position) {
     // Iterate over each row of the digit area
-    for (uint8_t row = 0; row < 4; row++) {
+    for (uint8_t row = 0; row < 4; ++row) {
         lcd.setCursor(position, row); // Set cursor to the appropriate position
-
-        // Replace the digit with spaces
-        for (uint8_t col = 0; col < 3; col++) {
-            lcd.print(F(" "));
-        }
+        lcd.print(F("   ")); // Replace the digit with spaces
     }
 }
 
@@ -285,7 +265,6 @@ void initializeLCD() {
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(F("Darkroom Timer"));
 
   // Create custom characters in the LCD's memory
     for (byte i = 0; i < NUM_CUSTOM_CHARS; i++)
@@ -296,20 +275,13 @@ void initializeLCD() {
 }
 
 /**
- * @brief Displays the initialization screen on the LCD and logs available memory.
+ * @brief Displays static text on the LCD screen. Decimal point and "SEC" text in a fixed position. The position is specific to the 4x20 LCD.
  * 
- * This function sets up the LCD to show a dot and the text "SEC" at specified positions.
- * It also outputs a message to the serial monitor indicating that the Darkroom Timer
- * is initialized and prints the available memory in bytes.
  */
-void showInitScreen()
-{
-  printDot(LCD_OFFSET + 7);
-  lcd.setCursor(LCD_OFFSET + 12, 3);
-  lcd.print(F("SEC"));
-  Serial.print("\nDarkroom Timer is initialized. Available memory is: ");
-  Serial.print(freeRam());
-  Serial.println(" bytes");
+void displayStaticText() {
+      printDot(LCD_OFFSET + 7);
+    lcd.setCursor(LCD_OFFSET + 12, 3);
+    lcd.print(F("SEC"));
 }
 
 /**
@@ -346,7 +318,6 @@ void displaySplashScreen() {
     delay(2000); // Adjust delay for better readability
     lcd.clear();
 }
-
 
 /**
  * @brief Displays the hundreds, tens, and units digits of a given delay value on an LCD.

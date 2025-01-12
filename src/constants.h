@@ -113,4 +113,4 @@ extern int eeAddress;             // EEPROM address to store timer delay
 
 // --- Build Information ---
 #define BUILD_VERSION 2.0
-#define REVISION_NUMBER 36
+#define REVISION_NUMBER 39

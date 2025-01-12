@@ -1,15 +1,15 @@
 /*
  * File: encoderHandler.cpp
  * Project: Darkroom Enlarger Timer
- * File Created: Tuesday, 31st December 2024 2:55:45 pm
+ * File Created: Thursday, 9th January 2025 6:19:41 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:04:10 am
+ * Last Modified: Thursday, 9th January 2025 6:20:25 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
- * Copyright 2019 - 2024, Prime73 Inc. MIT License
+ * Copyright 2019 - 2025, Prime73 Inc. MIT License
  * 
- * Copyright (c) 2024 Prime73 Inc.
+ * Copyright (c) 2025 Prime73 Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,7 +43,7 @@ MD_REncoder rotaryEncoder(ROTARY_ENCODER_PIN_A, ROTARY_ENCODER_PIN_B);
  * This function sets up the rotary encoder by calling its begin method,
  * and outputs a debug message indicating the initialization process.
  */
- void initializeEncoder() {
+void initializeEncoder() {
     DEBUG_PRINT("Initializing Encoder...");
     rotaryEncoder.begin();
 }
@@ -59,28 +59,28 @@ MD_REncoder rotaryEncoder(ROTARY_ENCODER_PIN_A, ROTARY_ENCODER_PIN_B);
  */
 void handleEncoderInput() {
     uint8_t direction = rotaryEncoder.read();
-    uint32_t tempIncrement = TimerConfig::INCREMENT; // Local copy of increment value
+    if (!direction) return;
 
-    if (direction) {
-        // Adjust increment based on speed if enabled
-        if (ENABLE_SPEED && rotaryEncoder.speed() > ROTARY_ENCODER_SPEED_LIMIT) {
-            tempIncrement *= rotaryEncoder.speed();
-        }
+    uint32_t tempIncrement = TimerConfig::INCREMENT;
 
-        // Handle direction-specific logic
-        if (direction == DIR_CCW) {
-            // Decrease timer delay when moving counterclockwise
-            timerDelay = timerDelay > tempIncrement ? timerDelay - tempIncrement : 0;
-            DEBUG_PRINT("CCW ");
-        } else if (direction == DIR_CW) {
-            // Increase timer delay when moving clockwise
-            timerDelay = timerDelay + tempIncrement < TimerConfig::MAX_DELAY ? timerDelay + tempIncrement : TimerConfig::MAX_DELAY;
-            DEBUG_PRINT("CW ");
-        }
-
-        // Debug output
-        DEBUG_PRINT("timerDelay: ");
-        DEBUG_PRINT(timerDelay);
+    // Adjust increment based on speed if enabled
+    if (ENABLE_SPEED && rotaryEncoder.speed() > ROTARY_ENCODER_SPEED_LIMIT) {
+        tempIncrement *= rotaryEncoder.speed();
     }
+
+    // Handle direction-specific logic
+    if (direction == DIR_CCW) {
+        // Decrease timer delay when moving counterclockwise
+        timerDelay = (timerDelay > tempIncrement) ? (timerDelay - tempIncrement) : 0;
+        DEBUG_PRINT("CCW ");
+    } else if (direction == DIR_CW) {
+        // Increase timer delay when moving clockwise
+        timerDelay = (timerDelay + tempIncrement < TimerConfig::MAX_DELAY) ? (timerDelay + tempIncrement) : TimerConfig::MAX_DELAY;
+        DEBUG_PRINT("CW ");
+    }
+
+    // Debug output
+    DEBUG_PRINT("timerDelay: ");
+    DEBUG_PRINT(timerDelay);
 }
 

@@ -4,7 +4,7 @@
  * File Created: Wednesday, 21st July 2021 10:40:30 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:16:08 am
+ * Last Modified: Sunday, 12th January 2025 10:34:11 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2022, Prime73 Inc. MIT License
@@ -79,7 +79,8 @@ void setup()
   //  RTC.begin(DateTime(__DATE__, __TIME__));
   testLCD();
   initializeLCD();
-  showInitScreen();
+  displaySplashScreen();
+  displayStaticText();
   initializeButtons();
   initializeEncoder();
   testEnlargerLamp();
