@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:26 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 10:18:30 pm
+ * Last Modified: Sunday, 12th January 2025 10:40:01 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -285,6 +285,21 @@ void displayStaticText() {
 }
 
 /**
+ * @brief Returns the formatted time in seconds from the stored timer delay.
+ * 
+ * This function converts the stored timer delay in milliseconds to seconds
+ * and formats the result as a string with one decimal place. The formatted
+ * time is returned as a String object.
+ * 
+ * @return A formatted string representing the time in seconds.
+ */
+String getFormattedTime() {
+ float seconds = storedTimerDelay / 1000.0;
+  char buffer[8];
+  dtostrf(seconds, 3 /*min width*/, 1 /*decimal precision*/, buffer);
+  return String(buffer);
+}
+/**
  * @brief Displays the splash screen for the Darkroom Exposure Timer.
  * 
  * This function clears the LCD screen and prints the title "DARKROOM" and 
@@ -294,9 +309,7 @@ void displayStaticText() {
  * The splash screen is displayed for 2 seconds before the screen is cleared.
  */
 void displaySplashScreen() {
-  float seconds = storedTimerDelay / 1000.0;
-  char buffer[8];
-  dtostrf(seconds, 3 /*min width*/, 1 /*decimal precision*/, buffer); 
+   
     lcd.clear();
     lcd.setCursor(6, 0);
     lcd.print(F("DARKROOM"));
@@ -306,7 +319,7 @@ void displaySplashScreen() {
     // Display the last stored delay on one line
     lcd.setCursor(3, 2); // Adjust for proper alignment
     lcd.print(F("Last Delay: "));
-    lcd.print(buffer);
+    lcd.print(getFormattedTime());
     lcd.print(F("s"));
 
     lcd.setCursor(6, 3); // Position for version and memory info

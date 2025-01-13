@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 4:02:41 pm
+ * Last Modified: Sunday, 12th January 2025 11:16:27 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -65,9 +65,6 @@ void testEnlargerLamp() {
  * the LCD backlight. The flag to turn on the lamp is then reset.
  */
 void turnEnlargerLampOn() {
-    if (!turnManuallyOnEnlargerLamp) {
-        turnEnlargerLampOff();
-    }
     if (turnOnEnlargerLamp) {
         DEBUG_PRINT("Turning enlarger lamp ON");
         digitalWrite(RELAY_PIN, HIGH);
@@ -86,9 +83,9 @@ void turnEnlargerLampOn() {
  */
 void handleEnlargerLamp() {
     // Turn on the enlarger lamp if it's not already manually turned off
-    if (!turnManuallyOnEnlargerLamp) {
+    // if (!turnManuallyOnEnlargerLamp) {
         turnEnlargerLampOn();
-    }
+    // }
 
     // Check if the exposure timer has reached its TimerConfig::DURATION
     unsigned long currentTime = micros();

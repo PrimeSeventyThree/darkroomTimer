@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 10:01:51 pm
+ * Last Modified: Sunday, 12th January 2025 11:18:01 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -129,7 +129,7 @@ void handleTimerButtonPress() {
             timerButtonState.pressStartTime = millis();
 
             // (Optional) debug
-            DEBUG_PRINT("Timer Button Pressed at " + String(timerButtonState.pressStartTime) + " ms");
+            // DEBUG_PRINT("Timer Button Pressed at " + String(timerButtonState.pressStartTime) + " ms");
 
         // 3. If it just went HIGH → button release
         } else if (timerButtonState.currentButtonState == HIGH && timerButtonState.buttonIsPressed) {
@@ -143,23 +143,22 @@ void handleTimerButtonPress() {
                 unsigned long elapsedTime = pressEndTime - timerButtonState.pressStartTime;
 
                 // Print debug
-                DEBUG_PRINT("Timer Button Released at " + String(pressEndTime) +
-                            " ms; Elapsed: " + String(elapsedTime) + " ms");
+                // DEBUG_PRINT("Timer Button Released at " + String(pressEndTime) + " ms; Elapsed: " + String(elapsedTime) + " ms");
 
                 // 3a. Short Press
                 if (elapsedTime < TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
-                    DEBUG_PRINT("Short Press → Starting Exposure");
+                    // DEBUG_PRINT("Short Press → Starting Exposure");
                     startExposure = true;
-                    turnManuallyOnEnlargerLamp = true;
+                    // turnManuallyOnEnlargerLamp = true;
                     digitalWrite(MANUAL_LIGHT_PIN, HIGH);
 
                 // 3b. Long Press
                 } else {
-                    DEBUG_PRINT("Long Press → Toggle Manual Lamp");
+                    // DEBUG_PRINT("Long Press → Toggle Manual Lamp");
                     startExposure = false; // Cancel exposure
                     turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
                     digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
-                    turnEnlargerLampOn();
+                    // turnEnlargerLampOn();
                 }
             }
         }
