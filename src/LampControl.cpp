@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 1:52:38 pm
+ * Last Modified: Sunday, 12th January 2025 4:02:41 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -115,7 +115,7 @@ void handleEnlargerLamp() {
  * starting exposure, turning on the enlarger lamp, manual lamp control, and the timer button state.
  */
 void turnEnlargerLampOff() {
-    DEBUG_PRINT("Turning enlarger lamp OFF");
+    //DEBUG_PRINT("Turning enlarger lamp OFF");
     startExposure = false;
     turnOnEnlargerLamp = false;
     turnManuallyOnEnlargerLamp = false;

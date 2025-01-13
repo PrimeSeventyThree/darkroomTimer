@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:57:16 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 2:05:11 pm
+ * Last Modified: Sunday, 12th January 2025 10:01:51 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -85,7 +85,7 @@ bool debounceButton(uint8_t buttonPin, ButtonState& state) {
     }
 
     // Check if the button state is stable for longer than the debounce delay
-    if ((currentMillis - state.lastDebounceTime) > DEBOUNCE_DELAY && newReading != state.currentButtonState) {
+    if ((currentMillis - state.lastDebounceTime) > state.debounceDelay && newReading != state.currentButtonState) {
         // Update the current button state and mark state as changed
         state.currentButtonState = newReading;
         stateChanged = true;
@@ -120,61 +120,62 @@ void handleEncoderButton() {
  * and manages manual lamp control.
  */
 void handleTimerButtonPress() {
-    if (debounceButton(TIMER_BUTTON_PIN, timerButtonState) && timerButtonState.currentButtonState == LOW) {
-        timerButtonState.buttonIsPressed = true;
-        timerButtonState.lastDebounceTime = millis();
-    }
-}
+    // 1. Check if the stable state changed
+    if (debounceButton(TIMER_BUTTON_PIN, timerButtonState)) {
 
-/**
- * @brief Processes the release of the timer button to control the enlarger lamp.
- * 
- * This function manages the state transitions and actions to be taken when the timer button
- * is released. It updates the stored timer delay in EEPROM, controls the enlarger lamp, and
- * manages the exposure start based on the debounce time and current button state.
- */
-void processTimerButtonRelease() {
-    if (timerButtonState.currentButtonState == HIGH) {
-        storedTimerDelay = timerDelay;
-        EEPROM.put(eeAddress, storedTimerDelay);
-        turnOnEnlargerLamp = true;
-        time = micros();
-        timerButtonState.buttonIsPressed = false;
+        // 2. If it just went LOW → button press start
+        if (timerButtonState.currentButtonState == LOW && !timerButtonState.buttonIsPressed) {
+            timerButtonState.buttonIsPressed = true;
+            timerButtonState.pressStartTime = millis();
 
-        unsigned long elapsedTime = millis() - timerButtonState.lastDebounceTime;
-        if (elapsedTime < TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
-            // **Short Press Logic**
-            DEBUG_PRINT("Timer Button is Released. Starting Exposure for " + String(timerDelay) + " milliseconds...");
-            startExposure = true;
-            turnManuallyOnEnlargerLamp = true;
-            digitalWrite(MANUAL_LIGHT_PIN, HIGH);
-        } else {
-            // **Long Press Logic**
-            DEBUG_PRINT("Timer Button is Released after a manual delay. Elapsed Time: " + String(elapsedTime));
-            turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
-            DEBUG_PRINT("turnManuallyOnEnlargerLamp: " + String(turnManuallyOnEnlargerLamp));
-            digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
-            turnEnlargerLampOn();
+            // (Optional) debug
+            DEBUG_PRINT("Timer Button Pressed at " + String(timerButtonState.pressStartTime) + " ms");
+
+        // 3. If it just went HIGH → button release
+        } else if (timerButtonState.currentButtonState == HIGH && timerButtonState.buttonIsPressed) {
+                // Update the stored timer delay and turn on the enlarger lamp
+                storedTimerDelay = timerDelay;
+                EEPROM.put(eeAddress, storedTimerDelay);
+                turnOnEnlargerLamp = true;
+                time = micros();
+
+                timerButtonState.buttonIsPressed = false;                unsigned long pressEndTime = millis();
+                unsigned long elapsedTime = pressEndTime - timerButtonState.pressStartTime;
+
+                // Print debug
+                DEBUG_PRINT("Timer Button Released at " + String(pressEndTime) +
+                            " ms; Elapsed: " + String(elapsedTime) + " ms");
+
+                // 3a. Short Press
+                if (elapsedTime < TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
+                    DEBUG_PRINT("Short Press → Starting Exposure");
+                    startExposure = true;
+                    turnManuallyOnEnlargerLamp = true;
+                    digitalWrite(MANUAL_LIGHT_PIN, HIGH);
+
+                // 3b. Long Press
+                } else {
+                    DEBUG_PRINT("Long Press → Toggle Manual Lamp");
+                    startExposure = false; // Cancel exposure
+                    turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
+                    digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
+                    turnEnlargerLampOn();
+                }
+            }
         }
     }
-}
 
-/**
- * @brief Handles the logic for when the timer button is pressed.
- * 
- * This function manages the state transitions and actions to be taken
- * when the timer button is pressed. It updates the stored timer delay
- * in EEPROM, controls the enlarger lamp, and manages the exposure start
- * based on the debounce time and current button state.
- */
-void handleLongPress() {
-    if ((millis() - timerButtonState.lastDebounceTime) > TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
-        DEBUG_PRINT("Timer Button is Pressed longer than a manual delay.");
-        // Toggle the manual mode
-        turnManuallyOnEnlargerLamp = !turnManuallyOnEnlargerLamp;
-        digitalWrite(MANUAL_LIGHT_PIN, turnManuallyOnEnlargerLamp ? HIGH : LOW);
-    }
-}
+    // 4. (Optional) Handle the case: user is STILL holding the button
+    //    for immediate feedback, like your original code setting
+    //    "Timer Button is Pressed longer than a manual delay."
+    // if (timerButtonState.buttonIsPressed) {
+    //     unsigned long now = millis();
+    //     if ((now - timerButtonState.pressStartTime) > TimerConfig::TURN_ENLARGER_LAMP_ON_DELAY) {
+    //         DEBUG_PRINT("Timer Button Held > 2s → Lamp ON or Manual Indication");
+    //         digitalWrite(MANUAL_LIGHT_PIN, HIGH);
+    //     }
+    // }
+
 
 /**
  * @brief Handles the input from the rotary encoder and timer button.
@@ -186,8 +187,4 @@ void handleLongPress() {
 void inputHandler() {
     handleEncoderButton();
     handleTimerButtonPress();
-
-    if (timerButtonState.buttonIsPressed) {
-        processTimerButtonRelease();
-    }
 }

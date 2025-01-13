@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 2:04:37 pm
+ * Last Modified: Sunday, 12th January 2025 10:01:10 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -37,9 +37,6 @@
 
 #include <Arduino.h>
 
-// --- Button Debounce Configuration ---
-constexpr unsigned long DEBOUNCE_DELAY = 50;             // Debounce time in milliseconds
-
 // --- Buttons Configuration ---
 constexpr int TIMER_BUTTON_PIN = 6;           // Timer start button
 constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (resets timer to 0)
@@ -52,14 +49,16 @@ constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (r
  * of the last debounce time, the debounce delay, and the button's
  * last and current states.
  * 
- * @var lastDebounceTime The last time the button state was toggled.
+ * @var pressStartTime The last time the button state was toggled.
  * @var debounceDelay The delay in milliseconds to debounce the button.
+ * @var lastDebounceTime The last time the button was toggled.
  * @var lastButtonState The previous state of the button.
  * @var currentButtonState The current state of the button.
  */
  struct ButtonState {
-    unsigned long lastDebounceTime = 0;  // Last time the output pin was toggled
+    unsigned long pressStartTime = 0;  // Stores the last time the button was pressed
     const unsigned long debounceDelay = 50;  // Debounce delay in milliseconds
+    unsigned long lastDebounceTime = 0;  // The last time the output pin was toggled
     bool lastButtonState = HIGH;  // The previous reading from the input pin
     bool currentButtonState = HIGH;  // Current state of the button
     bool buttonIsPressed = false;       // Tracks the button state
@@ -68,6 +67,5 @@ constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (r
 void initializeButtons();
 bool checkButtonState(uint8_t buttonPin, ButtonState& state);
 void inputHandler();
-void handleTimerButtonLogic();
 
 #endif
