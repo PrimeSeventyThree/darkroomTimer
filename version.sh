@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # File: version.sh
-# Project: Darkroom Enlarger Timer
+# Project: DarkRoomTimer
 # File Created: Tuesday, 7th January 2025 1:35:06 pm
 # Author: Andrei Grichine (andrei.grichine@gmail.com)
 # -----
-# Last Modified: Tuesday, 7th January 2025 2:13:09 pm
+# Last Modified: Monday, 17th February 2025 1:11:06 pm
 # Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
 # -----
 # Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -76,18 +76,19 @@ revisionNumberDef="#define REVISION_NUMBER $revisionNumber"
 if [ -f "$CONSTANTS_FILE" ]; then
     # Remove existing BUILD_VERSION and REVISION_NUMBER definitions
     sed -i.bak '/#define BUILD_VERSION/d' "$CONSTANTS_FILE"
-    if [ $? -eq 0 ]; then
-        sed -i.bak '/#define REVISION_NUMBER/d' "$CONSTANTS_FILE"
-        if [ $? -eq 0 ]; then
-            # Remove the backup file if the operations were successful
-            rm -f constants.bak
-            echo "Build and revision updated successfully. Backup file deleted."
-        else
-            echo "Error updating revision in constants.h."
-        fi
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to remove BUILD_VERSION from $CONSTANTS_FILE"
+        exit 1
     else
-        echo "Error updating build in constants.h."
+        sed -i.bak '/#define REVISION_NUMBER/d' "$CONSTANTS_FILE"
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to remove REVISION_NUMBER from $CONSTANTS_FILE"
+            exit 1
+        fi
     fi
+    # Remove the backup file if the operations were successful
+    rm -f constants.bak
+    echo "Build and revision updated successfully. Backup file deleted."
 
     # Add new definitions
     echo "$buildVersion" >>"$CONSTANTS_FILE"
