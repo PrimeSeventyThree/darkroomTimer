@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:15:40 am
+ * Last Modified: Tuesday, 18th February 2025 9:28:57 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -113,17 +113,15 @@ bool writeEEPROMWithRetry(int address, long value) {
 * if too many bad blocks are encountered.
 *
 * @param address The EEPROM address to read from.
-* @param value The default value EEPROM is initialized with.
 * @return True if the read was successful, false otherwise.
 */
-bool readEEPROMWithRetry(int address, long value) {
+bool readEEPROMWithRetry(int address) {
   const int MAX_RETRIES = 3;
   for (int retry = 0; retry < MAX_RETRIES; ++retry) {
       long readValue;
       EEPROM.get(address, readValue);
-
-      if (readValue != value) {
-          return true; // Write successful
+      if (readValue >= 0 && readValue <= TimerConfig::MAX_DELAY && readValue != EEPROM_INIT_VALUE) { // Check if the value is within the valid range and not the default value
+        return true;
       }
       delay(10); // Small delay before retry
   }

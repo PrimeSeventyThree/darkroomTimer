@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:14:00 am
+ * Last Modified: Tuesday, 18th February 2025 9:30:59 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -42,7 +42,10 @@ void initializeButtons() {
     pinMode(TIMER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
     // Restore stored timer delay from EEPROM
-    readEEPROMWithRetry(eeAddress,EEPROM_INIT_VALUE);
+    for (int index = 0; index < EEPROM_ADDRESS_RANGE; index++) {
+        int currentEEPROMAddress = getNextEEPROMAddress();
+        if (readEEPROMWithRetry(currentEEPROMAddress)) break;
+      }
     timerDelay = storedTimerDelay;
 }
 
