@@ -2,27 +2,17 @@
 
 # File: version.sh
 # Project: Darkroom Enlarger Timer
-# File Created: Tuesday, 7th January 2025 1:35:06 pm
+# File Created: Monday, 17th February 2025 12:58:56 pm
 # Author: Andrei Grichine (andrei.grichine@gmail.com)
 # -----
-# Last Modified: Monday, 17th February 2025 11:27:49 pm
+# Last Modified: Tuesday, 18th February 2025 12:35:49 am
 # Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
 # -----
-# Copyright 2019 - 2025, Prime73 Inc. MIT License
+# Copyright: 2019 - 2025. Prime73 Inc.
 #
-# Copyright (c) 2025 Prime73 Inc.
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -91,7 +81,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Remove the backup file if the operations were successful
-rm -f constants.bak
+rm -f "$CONSTANTS_FILE.bak"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to remove backup file: $CONSTANTS_FILE.bak"
+    exit 1
+fi
 echo "Build and revision updated successfully. Backup file deleted."
 
 echo "Updated $CONSTANTS_FILE with:"
