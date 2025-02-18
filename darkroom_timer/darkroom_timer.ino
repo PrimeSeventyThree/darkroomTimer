@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:28:18 am
+ * Last Modified: Tuesday, 18th February 2025 9:13:30 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -92,5 +92,6 @@ void loop() {
 
     // Update the big digit display on the LCD if timer value changes
     updateTimerDisplay();
+    if (EEPROM_FAILED) displayEEPROMError();
 
 }

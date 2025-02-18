@@ -4,7 +4,7 @@
  * File Created: Tuesday, 18th February 2025 12:03:37 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 6:56:07 am
+ * Last Modified: Tuesday, 18th February 2025 9:16:31 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -146,6 +146,19 @@ extern long storedTimerDelay;     // Last stored timer value
 extern unsigned long lastEEPROMWrite;  // Tracks the last EEPROM write time
 extern int eeAddress;             // EEPROM address to store timer delay
 
+// EEPROM Wear Leveling Configuration
+constexpr long EEPROM_MAGIC = 0xDEADBEEF;
+constexpr int MAGIC_ADDRESS = 0; // Reserve the first few bytes for the magic number.
+constexpr uint8_t EEPROM_INIT_VALUE = -1; //A default value we use to initialize EEPROM 
+
+constexpr int EEPROM_START_ADDRESS = 10; // Start address for wear leveling (leave some space for other data)
+constexpr int EEPROM_END_ADDRESS = 1014; // Total EEPROM size in bytes (adjust for your Arduino). 1024 bytes on the ATmega328P, 512 bytes on the ATmega168 and ATmega8, 4 KB (4096 bytes) on the ATmega1280 and ATmega2560
+constexpr int EEPROM_ADDRESS_RANGE = EEPROM_END_ADDRESS - EEPROM_START_ADDRESS + 1;
+constexpr int MAX_BAD_BLOCKS = 5;       // Maximum allowed bad blocks before warning
+extern int currentEEPROMAddressIndex;  // Index to track the current EEPROM address
+extern int badBlocksCount;            // Counter for bad EEPROM blocks
+extern bool EEPROM_FAILED;
+
 #endif // CONSTANTS_H
 
 // --- SPLASH SCREEN TEXT ---
@@ -155,4 +168,4 @@ namespace SplashScreen {
 }
 // --- Build Information ---
 const uint8_t BUILD_VERSION PROGMEM =2.0;
-const uint8_t REVISION_NUMBER PROGMEM =52;
+const uint8_t REVISION_NUMBER PROGMEM =54;

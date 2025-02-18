@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 6:42:09 am
+ * Last Modified: Tuesday, 18th February 2025 9:12:53 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -32,5 +32,6 @@ void displayStaticText();
 void displaySplashScreen();
 void updateTimerDisplay();
 void drawOrEraseBigDigit(uint8_t position, uint8_t digit = 0, bool erase = false);
+void displayEEPROMError();
 
 #endif // LCD_HANDLER_H

@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:29:28 am
+ * Last Modified: Tuesday, 18th February 2025 9:16:43 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -46,3 +46,8 @@ volatile bool turnManuallyOnEnlargerLamp = false; // Flag to turn on the enlarge
 
 // --- LCD Instance ---
 LiquidCrystal_I2C lcd(I2C_ADDRESS, EN_PIN, RW_PIN, RS_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN, BACK_PIN, POSITIVE);
+
+// EEPROM Wear Leveling Variables
+int currentEEPROMAddressIndex = 0; // Initialize the index
+int badBlocksCount = 0;
+bool EEPROM_FAILED = false;

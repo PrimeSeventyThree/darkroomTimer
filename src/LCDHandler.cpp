@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 6:42:21 am
+ * Last Modified: Tuesday, 18th February 2025 8:17:39 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -311,3 +311,14 @@ void updateTimerDisplay() {
     }
 }
 
+/**
+ * @brief Displays an error message on the LCD indicating EEPROM failure.
+ */
+ void displayEEPROMError() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F("EEPROM Failure!"));
+  lcd.setCursor(0, 1);
+  lcd.print(F("Replace ASAP!"));
+  delay(2000); // Display for 2 seconds
+}

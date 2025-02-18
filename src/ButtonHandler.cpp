@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 6:57:44 am
+ * Last Modified: Tuesday, 18th February 2025 9:14:00 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -22,11 +22,11 @@
  * HISTORY:
  */
 
+#include <Arduino.h>
+#include "MemoryUtils.h"
 #include "ButtonHandler.h"
 #include "constants.h"
 #include "LampControl.h"
-#include <Arduino.h>
-#include <EEPROM.h> // to store/read data in EEPROM
 
 ButtonState encoderButtonState;
 ButtonState timerButtonState;
@@ -41,8 +41,8 @@ ButtonState timerButtonState;
 void initializeButtons() {
     pinMode(TIMER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
-        // Restore stored timer delay from EEPROM
-    EEPROM.get(eeAddress, storedTimerDelay);
+    // Restore stored timer delay from EEPROM
+    readEEPROMWithRetry(eeAddress,EEPROM_INIT_VALUE);
     timerDelay = storedTimerDelay;
 }
 
@@ -130,9 +130,15 @@ void processButtonRelease() {
     if (currentMillis - lastEEPROMWrite >= TimerConfig::EEPROM_WRITE_DELAY) {
         // Check if the timerDelay has changed since the last EEPROM write
         if (timerDelay != storedTimerDelay) {
-            EEPROM.put(eeAddress, storedTimerDelay); // Write to EEPROM only if the new delay is different from the old one. No direct error handling available, so we trust that we have enough EEPROM write cycles left...
-            lastEEPROMWrite = currentMillis; // Update last write time
-            DEBUG_PRINT("EEPROM updated");
+            int nextAddress = getNextEEPROMAddress();
+            if (writeEEPROMWithRetry(nextAddress, timerDelay)) {
+                eeAddress = nextAddress; // Update current EEPROM address
+                storedTimerDelay = timerDelay; // Update stored delay
+                lastEEPROMWrite = currentMillis; // Update last write time
+                DEBUG_PRINT("EEPROM updated");
+            } else {
+                DEBUG_PRINT("EEPROM write failed, skipping address.");
+            }
         } else {
              DEBUG_PRINT("EEPROM not updated: value unchanged");
         }
@@ -140,7 +146,6 @@ void processButtonRelease() {
         DEBUG_PRINT("EEPROM not updated: too soon");
     }
     storedTimerDelay = timerDelay;
-
     turnOnEnlargerLamp = true;
     time = micros();
 

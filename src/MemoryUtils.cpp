@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:27:54 am
+ * Last Modified: Tuesday, 18th February 2025 9:15:40 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -21,6 +21,11 @@
  * -----
  * HISTORY:
  */
+
+ #include <EEPROM.h>
+ #include "MemoryUtils.h"
+ #include "constants.h"
+ #include "LCDHandler.h"
 
 /**
  * @brief Returns the number of bytes currently free in RAM.
@@ -48,4 +53,110 @@
    return free_memory;
  }
  
- 
+ /**
+ * @brief Gets the next EEPROM address for wear leveling.
+ *
+ * This function increments the current EEPROM address index and wraps around
+ * to the start address when the end of the address range is reached.
+ *
+ * @return The next EEPROM address to use.
+ */
+int getNextEEPROMAddress() {
+  currentEEPROMAddressIndex = (currentEEPROMAddressIndex + 1) % EEPROM_ADDRESS_RANGE;
+  return EEPROM_START_ADDRESS + currentEEPROMAddressIndex;
+}
+
+/**
+* @brief Writes a value to EEPROM with retry logic to handle bad blocks.
+*
+* This function attempts to write a value to the specified EEPROM address.
+* If the write fails (value read back is incorrect), it increments the bad
+* blocks count and returns false. The function also handles skipping bad
+* blocks and displaying a warning message on the LCD if too many bad blocks
+* are encountered.
+*
+* @param address The EEPROM address to write to.
+* @param value The value to write.
+* @return True if the write was successful, false otherwise.
+*/
+bool writeEEPROMWithRetry(int address, long value) {
+  const int MAX_RETRIES = 3;
+  for (int retry = 0; retry < MAX_RETRIES; ++retry) {
+      EEPROM.put(address, value);
+      long readValue;
+      EEPROM.get(address, readValue);
+
+      if (readValue == value) {
+          return true; // Write successful
+      }
+      delay(10); // Small delay before retry
+  }
+
+  // Write failed after multiple retries
+  badBlocksCount++;
+  DEBUG_PRINT("EEPROM write failed at address: ");
+  DEBUG_PRINT(address);
+
+  if (badBlocksCount > MAX_BAD_BLOCKS) {
+    EEPROM_FAILED = true; //set the flag to display user a message
+  }
+  return false;
+}
+
+/**
+* @brief Reads a value to EEPROM with retry logic to handle bad blocks.
+*
+* This function attempts to read a value to the specified EEPROM address.
+* If the read fails (value read back is incorrect), it increments the bad
+* blocks count and returns false. The function also handles skipping bad
+* blocks and sets a flag to display a warning message on the LCD
+* if too many bad blocks are encountered.
+*
+* @param address The EEPROM address to read from.
+* @param value The default value EEPROM is initialized with.
+* @return True if the read was successful, false otherwise.
+*/
+bool readEEPROMWithRetry(int address, long value) {
+  const int MAX_RETRIES = 3;
+  for (int retry = 0; retry < MAX_RETRIES; ++retry) {
+      long readValue;
+      EEPROM.get(address, readValue);
+
+      if (readValue != value) {
+          return true; // Write successful
+      }
+      delay(10); // Small delay before retry
+  }
+
+  // Write failed after multiple retries
+  badBlocksCount++;
+  DEBUG_PRINT("EEPROM write failed at address: ");
+  DEBUG_PRINT(address);
+
+  if (badBlocksCount > MAX_BAD_BLOCKS) {
+    EEPROM_FAILED = true; //set the flag to display user a message
+  }
+  return false;
+}
+
+/**
+ * @brief Initializes EEPROM if it hasn't been set up already.
+ *
+ * Checks for a magic number in EEPROM. If the magic number is missing or incorrect,
+ * it writes default values for all settings and then writes the magic number.
+ */
+ void initializeEEPROM() {
+  long magicValue;
+  EEPROM.get(MAGIC_ADDRESS, magicValue);
+  
+  if (magicValue != EEPROM_MAGIC) {
+    for (int index = 0; index < EEPROM_ADDRESS_RANGE; index++) {
+      int currentEEPROMAddress = getNextEEPROMAddress();
+      writeEEPROMWithRetry(currentEEPROMAddress,EEPROM_INIT_VALUE);
+    }
+      // Write the magic number to mark EEPROM as initialized.
+      EEPROM.put(MAGIC_ADDRESS, EEPROM_MAGIC);
+  }
+}
+
+

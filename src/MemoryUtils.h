@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:23:21 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:28:09 am
+ * Last Modified: Tuesday, 18th February 2025 9:06:45 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -23,3 +23,7 @@
  */
 
 int freeRam(); // Calculates the number of bytes currently free in RAM. 
+int getNextEEPROMAddress();
+bool writeEEPROMWithRetry(int address, long value);
+bool readEEPROMWithRetry(int address, long value);
+void initializeEEPROM();
