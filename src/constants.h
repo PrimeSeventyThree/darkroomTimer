@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 3:09:25 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 1:52:52 pm
+ * Last Modified: Monday, 17th February 2025 11:21:05 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -34,7 +34,7 @@
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-
+#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
 #define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
@@ -79,18 +79,28 @@ namespace TimerConfig {
  * - RS_PIN, RW_PIN, EN_PIN, BACK_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN:
  *   Pin assignments for the LCD control and data lines.
  */
-#define LCD_ROWS 4                    // Number of rows in the LCD
-#define LCD_COLS 20                   // Number of columns in the LCD
-#define I2C_ADDRESS 0x27              // I2C address of the LCD module
-#define LCD_OFFSET 3                  // Starting column position for the leftmost big digit
-#define RS_PIN 0
-#define RW_PIN 1
-#define EN_PIN 2
-#define BACK_PIN 3
-#define D4_PIN 4
-#define D5_PIN 5
-#define D6_PIN 6
-#define D7_PIN 7
+constexpr uint8_t LCD_ROWS = 4;                    // Number of rows in the LCD
+constexpr uint8_t LCD_COLS = 20;                   // Number of columns in the LCD
+constexpr uint8_t LCD_ROW_ONE = 0;
+constexpr uint8_t LCD_ROW_TWO = 1;
+constexpr uint8_t LCD_ROW_THREE = 2;
+constexpr uint8_t LCD_ROW_FOUR = 3;
+constexpr uint8_t I2C_ADDRESS = 0x27;              // I2C address of the LCD module
+constexpr uint8_t LCD_OFFSET = 3;                  // Starting column position for the leftmost big digit
+constexpr uint8_t STATIC_DOT_POSITION = 7;         // Decimal point position on a 4x20 LCD
+constexpr uint8_t STATIC_SEC_TEXT_POSITION = 12;   // Static "SEC" text position on a 4x20 LCD
+constexpr uint8_t FIRST_BIG_DIGIT_OFFSET = 8;      // First big digit LCD offset
+constexpr uint8_t SECOND_BIG_DIGIT_OFFSET = 4;     // Second big digit LCD offset
+constexpr uint8_t THIRD_BIG_DIGIT_OFFSET = 0;      // Third big digit LCD offset
+
+constexpr uint8_t RS_PIN = 0;
+constexpr uint8_t RW_PIN = 1;
+constexpr uint8_t EN_PIN = 2;
+constexpr uint8_t BACK_PIN = 3;
+constexpr uint8_t D4_PIN = 4;
+constexpr uint8_t D5_PIN = 5;
+constexpr uint8_t D6_PIN = 6;
+constexpr uint8_t D7_PIN = 7;
 
 // --- LCD Instance ---
 extern LiquidCrystal_I2C lcd; 
@@ -110,6 +120,11 @@ extern int eeAddress;             // EEPROM address to store timer delay
 
 #endif // CONSTANTS_H
 
+// --- SPLASH SCREEN TEXT ---
+namespace SplashScreen {
+    const char LINE_ONE_TEXT[] PROGMEM = "DARKROOM";
+    const char LINE_TWO_TEXT[] PROGMEM = "EXPOSURE TIMER";
+}
 // --- Build Information ---
-#define BUILD_VERSION 2.0
-#define REVISION_NUMBER 43
+const uint8_t BUILD_VERSION PROGMEM =2.0;
+const uint8_t REVISION_NUMBER PROGMEM =45;

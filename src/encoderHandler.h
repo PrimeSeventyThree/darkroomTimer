@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:37 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 7:10:38 am
+ * Last Modified: Monday, 17th February 2025 11:25:27 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -51,10 +51,10 @@
  * 
  * @extern MD_REncoder rotaryEncoder An external instance of the MD_REncoder class.
  */
-#define ROTARY_ENCODER_PIN_A 3 // left pin (A)
-#define ROTARY_ENCODER_PIN_B 2 // right pin (B)
+constexpr uint8_t ROTARY_ENCODER_PIN_A = 3; // left pin (A)
+constexpr uint8_t ROTARY_ENCODER_PIN_B = 2; // right pin (B)
 
-#define ROTARY_ENCODER_SPEED_LIMIT 2 // the rotary encoder speed threshold above which the increment value is multiplied by the current speed value. This is to avoid the encoder to be too sensitive when setting the timer delay.
+constexpr uint8_t ROTARY_ENCODER_SPEED_LIMIT = 2; // the rotary encoder speed threshold above which the increment value is multiplied by the current speed value. This is to avoid the encoder to be too sensitive when setting the timer delay.
 
 extern MD_REncoder rotaryEncoder;
 

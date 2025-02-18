@@ -55,7 +55,7 @@ Characters are defined using an 8x5 dot matrix pattern for each segment, allowin
 
 ```c
 // Definitions of custom LCD character segments
-const byte segmentPatterns[][8] PROGMEM = {
+const uint8_t segmentPatterns[][8] PROGMEM = {
     {0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0F, 0x1F}, // char 1: top left triangle
     // ... (additional characters)
     {0x1F, 0x1F, 0x1E, 0x1C, 0x18, 0x18, 0x10, 0x10}  // char 7: middle right triangle

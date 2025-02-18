@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # File: version.sh
-# Project: DarkRoomTimer
+# Project: Darkroom Enlarger Timer
 # File Created: Tuesday, 7th January 2025 1:35:06 pm
 # Author: Andrei Grichine (andrei.grichine@gmail.com)
 # -----
-# Last Modified: Monday, 17th February 2025 1:11:06 pm
+# Last Modified: Monday, 17th February 2025 11:27:49 pm
 # Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
 # -----
 # Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -63,41 +63,38 @@ appBuild=$("$git" rev-list --all --count)
 # Check for debug configuration
 if [ "$CONFIGURATION" = "Debug" ]; then
     branchName=$("$git" rev-parse --abbrev-ref HEAD)
-    revisionNumber=$(echo "$appBuild-$branchName" | sed 's/^[ \t]*//')
+    REVISION_NUMBER=$(echo "$appBuild-$branchName" | sed 's/^[ \t]*//')
 else
-    revisionNumber=$appBuild
+    REVISION_NUMBER=$appBuild
 fi
 
 # Prepare updated content for constants.h
-buildVersion="#define BUILD_VERSION $BUILD_VERSION"
-revisionNumberDef="#define REVISION_NUMBER $revisionNumber"
+buildVersion="const uint8_t BUILD_VERSION PROGMEM ="
+revisionVersion="const uint8_t REVISION_NUMBER PROGMEM ="
 
-# Update constants.h
-if [ -f "$CONSTANTS_FILE" ]; then
-    # Remove existing BUILD_VERSION and REVISION_NUMBER definitions
-    sed -i.bak '/#define BUILD_VERSION/d' "$CONSTANTS_FILE"
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to remove BUILD_VERSION from $CONSTANTS_FILE"
-        exit 1
-    else
-        sed -i.bak '/#define REVISION_NUMBER/d' "$CONSTANTS_FILE"
-        if [ $? -ne 0 ]; then
-            echo "Error: Failed to remove REVISION_NUMBER from $CONSTANTS_FILE"
-            exit 1
-        fi
-    fi
-    # Remove the backup file if the operations were successful
-    rm -f constants.bak
-    echo "Build and revision updated successfully. Backup file deleted."
-
-    # Add new definitions
-    echo "$buildVersion" >>"$CONSTANTS_FILE"
-    echo "$revisionNumberDef" >>"$CONSTANTS_FILE"
-
-    echo "Updated $CONSTANTS_FILE with:"
-    echo "  $buildVersion"
-    echo "  $revisionNumberDef"
-else
+if [ ! -f "$CONSTANTS_FILE" ]; then
     echo "Error: $CONSTANTS_FILE not found!"
     exit 1
 fi
+# Update constants.h
+
+# Update existing BUILD_VERSION and REVISION_NUMBER definitions
+sed -i.bak "s/\($buildVersion\)[^;]*;/\1$BUILD_VERSION;/" "$CONSTANTS_FILE"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to update BUILD_VERSION in $CONSTANTS_FILE"
+    exit 1
+fi
+sed -i.bak "s/\($revisionVersion\)[^;]*;/\1$REVISION_NUMBER;/" "$CONSTANTS_FILE"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to update REVISION_NUMBER in $CONSTANTS_FILE"
+    exit 1
+fi
+
+# Remove the backup file if the operations were successful
+rm -f constants.bak
+echo "Build and revision updated successfully. Backup file deleted."
+
+echo "Updated $CONSTANTS_FILE with:"
+echo "  $buildVersion $BUILD_VERSION"
+echo "  $revisionVersion $REVISION_NUMBER"
+exit 0

@@ -4,7 +4,7 @@
  * File Created: Tuesday, 31st December 2024 2:55:19 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 10:33:52 am
+ * Last Modified: Monday, 17th February 2025 11:21:20 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -43,8 +43,6 @@ void initializeLCD();
 void displayStaticText();
 void displaySplashScreen();
 void updateTimerDisplay();
-void showBigDigit(uint8_t digit, uint8_t position);
-void clearBigDigit(uint8_t position);
-void clearBigDigits();
+void drawOrEraseBigDigit(uint8_t position, uint8_t digit = 0, bool erase = false);
 
 #endif // LCD_HANDLER_H

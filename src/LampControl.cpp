@@ -4,7 +4,7 @@
  * File Created: Tuesday, 7th January 2025 9:31:59 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 11:16:27 pm
+ * Last Modified: Monday, 17th February 2025 11:21:09 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2025, Prime73 Inc. MIT License
@@ -36,7 +36,6 @@
 
 #include "LampControl.h"
 #include "constants.h"
-#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
 extern LiquidCrystal_I2C lcd;

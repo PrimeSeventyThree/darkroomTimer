@@ -4,7 +4,7 @@
  * File Created: Thursday, 18th April 2024 2:17:14 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 12th January 2025 10:01:10 pm
+ * Last Modified: Monday, 17th February 2025 11:20:55 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright 2019 - 2024, Prime73 Inc. MIT License
@@ -38,8 +38,8 @@
 #include <Arduino.h>
 
 // --- Buttons Configuration ---
-constexpr int TIMER_BUTTON_PIN = 6;           // Timer start button
-constexpr int ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (resets timer to 0)
+constexpr uint8_t TIMER_BUTTON_PIN = 6;           // Timer start button
+constexpr uint8_t ROTARY_ENCODER_BUTTON_PIN = 4;  // Rotary encoder's push button (resets timer to 0)
  
 /**
  * @brief Represents the state of a button with debouncing logic.
