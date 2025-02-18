@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 6:36:15 am
+ * Last Modified: Tuesday, 18th February 2025 6:42:21 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -22,6 +22,7 @@
  * HISTORY:
  */
 
+#include <avr/pgmspace.h>
 #include "lcdHandler.h"
 #include "constants.h"
 #include "MemoryUtils.h"
