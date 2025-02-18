@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 5:40:11 am
+ * Last Modified: Tuesday, 18th February 2025 6:57:44 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -124,14 +124,27 @@ void handleEncoderButton() {
  * @brief Processes the button release event, handling both short and long presses.
  */
 void processButtonRelease() {
+    unsigned long currentMillis = millis();
     // Update stored timer delay and prepare the enlarger lamp.
+    // Check if enough time has passed since the last EEPROM write
+    if (currentMillis - lastEEPROMWrite >= TimerConfig::EEPROM_WRITE_DELAY) {
+        // Check if the timerDelay has changed since the last EEPROM write
+        if (timerDelay != storedTimerDelay) {
+            EEPROM.put(eeAddress, storedTimerDelay); // Write to EEPROM only if the new delay is different from the old one. No direct error handling available, so we trust that we have enough EEPROM write cycles left...
+            lastEEPROMWrite = currentMillis; // Update last write time
+            DEBUG_PRINT("EEPROM updated");
+        } else {
+             DEBUG_PRINT("EEPROM not updated: value unchanged");
+        }
+    } else {
+        DEBUG_PRINT("EEPROM not updated: too soon");
+    }
     storedTimerDelay = timerDelay;
-    EEPROM.put(eeAddress, storedTimerDelay); // No direct error handling available.
+
     turnOnEnlargerLamp = true;
     time = micros();
 
-    unsigned long pressEndTime = millis();
-    unsigned long elapsedTime = pressEndTime - timerButtonState.pressStartTime;
+    unsigned long elapsedTime = currentMillis - timerButtonState.pressStartTime;
     timerButtonState.buttonIsPressed = false;
 
     // Execute actions based on press duration.
