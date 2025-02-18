@@ -4,7 +4,7 @@
  * File Created: Tuesday, 18th February 2025 12:03:37 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:26:25 am
+ * Last Modified: Tuesday, 18th February 2025 6:31:26 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -101,20 +101,24 @@ namespace TimerConfig {
  * - RS_PIN, RW_PIN, EN_PIN, BACK_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN:
  *   Pin assignments for the LCD control and data lines.
  */
-constexpr uint8_t LCD_ROWS = 4;                    // Number of rows in the LCD
-constexpr uint8_t LCD_COLS = 20;                   // Number of columns in the LCD
-constexpr uint8_t LCD_ROW_ONE = 0;
-constexpr uint8_t LCD_ROW_TWO = 1;
-constexpr uint8_t LCD_ROW_THREE = 2;
-constexpr uint8_t LCD_ROW_FOUR = 3;
-constexpr uint8_t I2C_ADDRESS = 0x27;              // I2C address of the LCD module
-constexpr uint8_t LCD_OFFSET = 3;                  // Starting column position for the leftmost big digit
-constexpr uint8_t STATIC_DOT_POSITION = 7;         // Decimal point position on a 4x20 LCD
-constexpr uint8_t STATIC_SEC_TEXT_POSITION = 12;   // Static "SEC" text position on a 4x20 LCD
-constexpr uint8_t FIRST_BIG_DIGIT_OFFSET = 8;      // First big digit LCD offset
-constexpr uint8_t SECOND_BIG_DIGIT_OFFSET = 4;     // Second big digit LCD offset
-constexpr uint8_t THIRD_BIG_DIGIT_OFFSET = 0;      // Third big digit LCD offset
-
+ namespace LCDLayout4x20
+ {
+    constexpr uint8_t LCD_ROWS = 4;                    // Number of rows in the LCD
+    constexpr uint8_t LCD_COLS = 20;                   // Number of columns in the LCD
+    constexpr uint8_t LCD_ROW_ONE = 0;
+    constexpr uint8_t LCD_ROW_TWO = 1;
+    constexpr uint8_t LCD_ROW_THREE = 2;
+    constexpr uint8_t LCD_ROW_FOUR = 3;
+    constexpr uint8_t LCD_OFFSET = 3;                  // Starting column position for the leftmost big digit
+    constexpr uint8_t STATIC_DOT_POSITION = 7;         // Decimal point position on a 4x20 LCD
+    constexpr uint8_t STATIC_SEC_TEXT_POSITION = 12;   // Static "SEC" text position on a 4x20 LCD
+    constexpr uint8_t FIRST_BIG_DIGIT_OFFSET = 8;      // First big digit LCD offset
+    constexpr uint8_t SECOND_BIG_DIGIT_OFFSET = 4;     // Second big digit LCD offset
+    constexpr uint8_t THIRD_BIG_DIGIT_OFFSET = 0;      // Third big digit LCD offset
+    constexpr uint8_t LAST_DELAY_ROW = LCD_ROW_THREE;
+    constexpr uint8_t LAST_DELAY_COL = 3;
+ }
+// --- LCD PINS CONFIGURATION --- 
 constexpr uint8_t RS_PIN = 0;
 constexpr uint8_t RW_PIN = 1;
 constexpr uint8_t EN_PIN = 2;
@@ -123,6 +127,8 @@ constexpr uint8_t D4_PIN = 4;
 constexpr uint8_t D5_PIN = 5;
 constexpr uint8_t D6_PIN = 6;
 constexpr uint8_t D7_PIN = 7;
+
+constexpr uint8_t I2C_ADDRESS = 0x27;              // I2C address of the LCD module
 
 // --- LCD Instance ---
 extern LiquidCrystal_I2C lcd; 
@@ -149,4 +155,4 @@ namespace SplashScreen {
 }
 // --- Build Information ---
 const uint8_t BUILD_VERSION PROGMEM =2.0;
-const uint8_t REVISION_NUMBER PROGMEM =47;
+const uint8_t REVISION_NUMBER PROGMEM =49;

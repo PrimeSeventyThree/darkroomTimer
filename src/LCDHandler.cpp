@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:27:39 am
+ * Last Modified: Tuesday, 18th February 2025 6:36:15 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -25,6 +25,9 @@
 #include "lcdHandler.h"
 #include "constants.h"
 #include "MemoryUtils.h"
+
+// Define the desired LCD layout:
+#define SELECTED_LCD_LAYOUT LCDLayout4x20 // see constants.h for definitions
 
 const uint8_t segmentPatterns[7][8] PROGMEM = {
     {0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0F, 0x1F}, // char 1: top left triangle
@@ -181,7 +184,7 @@ void drawOrEraseBigDigit(uint8_t position, uint8_t digit = 0, bool erase = false
  *        clearing the screen, and creating custom characters in the LCD's memory.
  */
 void initializeLCD() {
-  lcd.begin(LCD_COLS, LCD_ROWS);
+  lcd.begin(SELECTED_LCD_LAYOUT::LCD_COLS, SELECTED_LCD_LAYOUT::LCD_ROWS);
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -199,8 +202,8 @@ void initializeLCD() {
  * 
  */
 void displayStaticText() {
-      printDot(LCD_OFFSET + STATIC_DOT_POSITION);
-    lcd.setCursor(LCD_OFFSET + STATIC_SEC_TEXT_POSITION, LCD_ROW_FOUR); //cursor is in the last 4x20 LCD row 
+      printDot(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_DOT_POSITION);
+    lcd.setCursor(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_SEC_TEXT_POSITION, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); //cursor is in the last 4x20 LCD row 
     lcd.print(F("SEC"));
 }
 
@@ -238,19 +241,19 @@ String getFormattedTime() {
 void displaySplashScreen() { 
     lcd.clear();
     uint8_t len = strlen_P(SplashScreen::LINE_ONE_TEXT);
-    lcd.setCursor((LCD_COLS-len)/2, LCD_ROW_ONE);
+    lcd.setCursor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2, SELECTED_LCD_LAYOUT::LCD_ROW_ONE);
     lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_ONE_TEXT));
     len = strlen_P(SplashScreen::LINE_TWO_TEXT);
-    lcd.setCursor((LCD_COLS-len)/2, LCD_ROW_TWO);
+    lcd.setCursor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2, SELECTED_LCD_LAYOUT::LCD_ROW_TWO);
     lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_TWO_TEXT));
 
     // Display the last stored delay on one line
-    lcd.setCursor(3, LCD_ROW_THREE); // Adjust for proper alignment
+    lcd.setCursor(SELECTED_LCD_LAYOUT::LAST_DELAY_COL, SELECTED_LCD_LAYOUT::LCD_ROW_THREE); // Adjust for proper alignment
     lcd.print(F("Last Delay: "));
     lcd.print(getFormattedTime());
     lcd.print(F("s"));
 
-    lcd.setCursor(6, LCD_ROW_FOUR); // Position for version and memory info
+    lcd.setCursor(6, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
     lcd.print(F("V"));
     lcd.print(reinterpret_cast<const __FlashStringHelper*>(BUILD_VERSION));
     lcd.print(F("."));
@@ -284,20 +287,20 @@ void updateTimerDisplay() {
     if (se != previousSe) {
         // Update third digit
         if (thirdDigit != 0) {
-          drawOrEraseBigDigit(LCD_OFFSET + THIRD_BIG_DIGIT_OFFSET, thirdDigit);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, thirdDigit);
         } else {
-          drawOrEraseBigDigit(LCD_OFFSET + THIRD_BIG_DIGIT_OFFSET, true);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, true);
         }
 
         // Update second digit
         if (secondDigit != 0 || thirdDigit != 0) {
-          drawOrEraseBigDigit(LCD_OFFSET + SECOND_BIG_DIGIT_OFFSET, secondDigit);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, secondDigit);
         } else {
-          drawOrEraseBigDigit(LCD_OFFSET + SECOND_BIG_DIGIT_OFFSET, true);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, true);
         }
 
         // Update first digit
-        drawOrEraseBigDigit(LCD_OFFSET + FIRST_BIG_DIGIT_OFFSET, firstDigit);
+        drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::FIRST_BIG_DIGIT_OFFSET, firstDigit);
 
         // Update previous values
         previousSe = se;
