@@ -5,7 +5,7 @@
 # File Created: Monday, 17th February 2025 12:58:56 pm
 # Author: Andrei Grichine (andrei.grichine@gmail.com)
 # -----
-# Last Modified: Tuesday, 18th February 2025 12:35:49 am
+# Last Modified: Tuesday, 18th February 2025 6:08:12 am
 # Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
 # -----
 # Copyright: 2019 - 2025. Prime73 Inc.
@@ -43,7 +43,7 @@ fi
 
 # Ensure git is working
 if [ ! -x "$git" ]; then
-    echo "Error: Git binary not found or not executable."
+    echo "Error: Git binary not found or not executable. We rely on git to properly handle project versioning. Make sure you have git installed."
     exit 1
 fi
 
