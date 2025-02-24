@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 2:08:31 pm
+ * Last Modified: Monday, 24th February 2025 2:22:47 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -261,7 +261,7 @@ void displaySplashScreen() {
     len = strlen(buffer);
     lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
     lcd.print(buffer);
-
+    free(buffer);
     delay(5000); // Adjust delay for better readability. 5 sec seems long enough
     lcd.clear();
 }
