@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 2:22:47 pm
+ * Last Modified: Monday, 24th February 2025 4:58:39 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -288,14 +288,14 @@ void updateTimerDisplay() {
         if (thirdDigit != 0) {
           drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, thirdDigit);
         } else {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, true);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, thirdDigit, true);
         }
 
         // Update second digit
         if (secondDigit != 0 || thirdDigit != 0) {
           drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, secondDigit);
         } else {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, true);
+          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, secondDigit, true);
         }
 
         // Update first digit

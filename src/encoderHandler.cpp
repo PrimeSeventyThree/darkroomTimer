@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:26:54 am
+ * Last Modified: Monday, 24th February 2025 2:35:35 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -67,10 +67,8 @@ void handleEncoderInput() {
         // Increase timer delay when moving clockwise
         timerDelay = (timerDelay + tempIncrement < TimerConfig::MAX_DELAY) ? (timerDelay + tempIncrement) : TimerConfig::MAX_DELAY;
         DEBUG_PRINT("CW ");
+        
     }
-
-    // Debug output
-    DEBUG_PRINT("timerDelay: ");
-    DEBUG_PRINT(timerDelay);
+    DEBUG_PRINTF("timerDelay: %d",timerDelay);
 }
 

@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 10:14:16 am
+ * Last Modified: Monday, 24th February 2025 3:16:30 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -94,8 +94,7 @@ bool writeEEPROMWithRetry(int address, long value) {
 
   // Write failed after multiple retries
   badBlocksCount++;
-  DEBUG_PRINT("EEPROM write failed at address: ");
-  DEBUG_PRINT(address);
+  DEBUG_PRINTF("EEPROM write failed at address: %d", address);
 
   if (badBlocksCount > MAX_BAD_BLOCKS) {
     EEPROM_FAILED = true; //set the flag to display user a message
@@ -128,8 +127,7 @@ bool readEEPROMWithRetry(int address) {
 
   // Write failed after multiple retries
   badBlocksCount++;
-  DEBUG_PRINT("EEPROM read failed at address: ");
-  DEBUG_PRINT(address);
+  DEBUG_PRINTF("EEPROM read failed at address: %d", address);
 
   if (badBlocksCount > MAX_BAD_BLOCKS) {
     EEPROM_FAILED = true; //set the flag to display user a message

@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 12:27:21 am
+ * Last Modified: Monday, 24th February 2025 2:14:55 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -70,9 +70,9 @@ void turnEnlargerLampOn() {
  */
 void handleEnlargerLamp() {
     // Turn on the enlarger lamp if it's not already manually turned off
-    // if (!turnManuallyOnEnlargerLamp) {
+    if (!turnManuallyOnEnlargerLamp) {
         turnEnlargerLampOn();
-    // }
+    }
 
     // Check if the exposure timer has reached its TimerConfig::DURATION
     unsigned long currentTime = micros();
@@ -99,7 +99,7 @@ void handleEnlargerLamp() {
  * starting exposure, turning on the enlarger lamp, manual lamp control, and the timer button state.
  */
 void turnEnlargerLampOff() {
-    //DEBUG_PRINT("Turning enlarger lamp OFF");
+    DEBUG_PRINT("Turning enlarger lamp OFF");
     startExposure = false;
     turnOnEnlargerLamp = false;
     turnManuallyOnEnlargerLamp = false;
