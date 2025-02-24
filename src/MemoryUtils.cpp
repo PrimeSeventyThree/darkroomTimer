@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:28:57 am
+ * Last Modified: Monday, 24th February 2025 10:14:16 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -120,7 +120,7 @@ bool readEEPROMWithRetry(int address) {
   for (int retry = 0; retry < MAX_RETRIES; ++retry) {
       long readValue;
       EEPROM.get(address, readValue);
-      if (readValue >= 0 && readValue <= TimerConfig::MAX_DELAY && readValue != EEPROM_INIT_VALUE) { // Check if the value is within the valid range and not the default value
+      if ((readValue >= 0 && readValue <= TimerConfig::MAX_DELAY) || readValue != EEPROM_INIT_VALUE) { // Check if the value is within the valid range and not the default value
         return true;
       }
       delay(10); // Small delay before retry
@@ -128,7 +128,7 @@ bool readEEPROMWithRetry(int address) {
 
   // Write failed after multiple retries
   badBlocksCount++;
-  DEBUG_PRINT("EEPROM write failed at address: ");
+  DEBUG_PRINT("EEPROM read failed at address: ");
   DEBUG_PRINT(address);
 
   if (badBlocksCount > MAX_BAD_BLOCKS) {
