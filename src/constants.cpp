@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:16:43 am
+ * Last Modified: Tuesday, 18th February 2025 11:22:40 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -31,7 +31,6 @@
  * enlarger lamp and timer button states. The LiquidCrystal_I2C object is
  * configured with specific pin assignments for interfacing with an LCD.
  */
-unsigned long _micro = 0;     // Microseconds counter
 unsigned long time = 0;        // Current time
 
 long timerDelay = 0;           // Current timer delay

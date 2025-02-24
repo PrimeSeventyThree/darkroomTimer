@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:13:30 am
+ * Last Modified: Monday, 24th February 2025 9:41:07 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -45,7 +45,6 @@
  * Last Modified: January 8, 2025
  * License: MIT License
  */
-#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 
 #include "src/DebugUtils.h" // Debug Utils
 #include "src/constants.h"
