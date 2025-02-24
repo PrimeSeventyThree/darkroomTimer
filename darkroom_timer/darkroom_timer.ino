@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 9:41:07 am
+ * Last Modified: Monday, 24th February 2025 2:37:32 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -67,17 +67,14 @@ void setup()
   time = micros();
     ; // Waiting for Serial Monitor
   randomSeed(analogRead(0));
-  //  RTC.begin(DateTime(__DATE__, __TIME__));
   initializeButtons();
   testLCD();
   initializeLCD();
   displaySplashScreen();
-  displayStaticText();
-
   initializeEncoder();
   testEnlargerLamp();
+  displayStaticText();
 }
-
 void loop() {
     // Handle input from buttons and rotary encoder
     inputHandler();
