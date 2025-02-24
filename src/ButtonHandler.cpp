@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 9:30:59 am
+ * Last Modified: Monday, 24th February 2025 5:29:16 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -44,7 +44,9 @@ void initializeButtons() {
     // Restore stored timer delay from EEPROM
     for (int index = 0; index < EEPROM_ADDRESS_RANGE; index++) {
         int currentEEPROMAddress = getNextEEPROMAddress();
-        if (readEEPROMWithRetry(currentEEPROMAddress)) break;
+        storedTimerDelay = readEEPROMWithRetry(currentEEPROMAddress);
+        DEBUG_PRINTF("Restored timer delay %d from EEPROM at %d address", storedTimerDelay, currentEEPROMAddress);
+        if (storedTimerDelay != -1) break;
       }
     timerDelay = storedTimerDelay;
 }
@@ -135,10 +137,11 @@ void processButtonRelease() {
         if (timerDelay != storedTimerDelay) {
             int nextAddress = getNextEEPROMAddress();
             if (writeEEPROMWithRetry(nextAddress, timerDelay)) {
+                DEBUG_PRINTF("EEPROM updated at %d address. Stored delay is %d ms.", nextAddress, timerDelay);
                 eeAddress = nextAddress; // Update current EEPROM address
                 storedTimerDelay = timerDelay; // Update stored delay
                 lastEEPROMWrite = currentMillis; // Update last write time
-                DEBUG_PRINT("EEPROM updated");
+                
             } else {
                 DEBUG_PRINT("EEPROM write failed, skipping address.");
             }

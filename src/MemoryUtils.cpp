@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 3:16:30 pm
+ * Last Modified: Monday, 24th February 2025 5:26:05 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -62,8 +62,8 @@
  * @return The next EEPROM address to use.
  */
 int getNextEEPROMAddress() {
-  currentEEPROMAddressIndex = (currentEEPROMAddressIndex + 1) % EEPROM_ADDRESS_RANGE;
-  return EEPROM_START_ADDRESS + currentEEPROMAddressIndex;
+  // currentEEPROMAddressIndex = (currentEEPROMAddressIndex + 1) % EEPROM_ADDRESS_RANGE;
+  return EEPROM_START_ADDRESS;
 }
 
 /**
@@ -112,15 +112,16 @@ bool writeEEPROMWithRetry(int address, long value) {
 * if too many bad blocks are encountered.
 *
 * @param address The EEPROM address to read from.
-* @return True if the read was successful, false otherwise.
+* @return timer delay stored in EEPROM, otherwise -1
 */
-bool readEEPROMWithRetry(int address) {
+int readEEPROMWithRetry(int address) {
   const int MAX_RETRIES = 3;
   for (int retry = 0; retry < MAX_RETRIES; ++retry) {
       long readValue;
       EEPROM.get(address, readValue);
       if ((readValue >= 0 && readValue <= TimerConfig::MAX_DELAY) || readValue != EEPROM_INIT_VALUE) { // Check if the value is within the valid range and not the default value
-        return true;
+        DEBUG_PRINTF("Read timer delay %d from EEPROM at address: %d", readValue, address);
+        return readValue;
       }
       delay(10); // Small delay before retry
   }
@@ -132,7 +133,7 @@ bool readEEPROMWithRetry(int address) {
   if (badBlocksCount > MAX_BAD_BLOCKS) {
     EEPROM_FAILED = true; //set the flag to display user a message
   }
-  return false;
+  return -1;
 }
 
 /**
