@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th February 2025 8:17:39 am
+ * Last Modified: Monday, 24th February 2025 2:08:31 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -242,10 +242,10 @@ String getFormattedTime() {
 void displaySplashScreen() { 
     lcd.clear();
     uint8_t len = strlen_P(SplashScreen::LINE_ONE_TEXT);
-    lcd.setCursor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2, SELECTED_LCD_LAYOUT::LCD_ROW_ONE);
+    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_ONE);
     lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_ONE_TEXT));
     len = strlen_P(SplashScreen::LINE_TWO_TEXT);
-    lcd.setCursor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2, SELECTED_LCD_LAYOUT::LCD_ROW_TWO);
+    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_TWO);
     lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_TWO_TEXT));
 
     // Display the last stored delay on one line
@@ -254,16 +254,15 @@ void displaySplashScreen() {
     lcd.print(getFormattedTime());
     lcd.print(F("s"));
 
-    lcd.setCursor(6, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
-    lcd.print(F("V"));
-    lcd.print(reinterpret_cast<const __FlashStringHelper*>(BUILD_VERSION));
-    lcd.print(F("."));
-    lcd.print(reinterpret_cast<const __FlashStringHelper*>(REVISION_NUMBER));
-    lcd.print(F(" "));
-    lcd.print(freeRam());
-    lcd.print(F("B"));
+    int freeRamText = freeRam();
+    size_t bufferSize = snprintf(NULL, 0, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText)+1; // passing NULL as a first argument to snprintf returns a size the buffer needed to store the string.
+    char  *buffer = malloc(bufferSize);
+    snprintf(buffer, bufferSize, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText);
+    len = strlen(buffer);
+    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
+    lcd.print(buffer);
 
-    delay(2000); // Adjust delay for better readability
+    delay(5000); // Adjust delay for better readability. 5 sec seems long enough
     lcd.clear();
 }
 
@@ -272,8 +271,7 @@ void displaySplashScreen() {
  * digits representing the remaining time. The function calculates the 
  * tens, ones, and tenths place digits from the timer delay and updates 
  * the display only if the seconds remaining have changed. It uses 
- * `drawOrEraseBigDigit` to display non-zero digits and `clearBigDigit` to clear 
- * positions when necessary.
+ * `drawOrEraseBigDigit` to display big digits.
  */
 void updateTimerDisplay() {
     // Calculate digits
