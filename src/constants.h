@@ -4,7 +4,7 @@
  * File Created: Tuesday, 18th February 2025 12:03:37 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 10:24:38 am
+ * Last Modified: Tuesday, 25th February 2025 12:34:41 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -59,7 +59,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
-#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
+//#define DEBUG           // Comment out this line to disable all debug output before uploading final sketch to a board
 
 #include "DebugUtils.h" // Debug Utilities
 
@@ -167,4 +167,4 @@ namespace SplashScreen {
 }
 // --- Build Information ---
 const uint8_t BUILD_VERSION PROGMEM =2.0;
-const uint8_t REVISION_NUMBER PROGMEM =68;
+const uint8_t REVISION_NUMBER PROGMEM =70;

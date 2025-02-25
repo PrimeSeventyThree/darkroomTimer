@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 10:34:18 am
+ * Last Modified: Tuesday, 25th February 2025 12:33:53 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -255,6 +255,41 @@ void displayStaticText() {
   dtostrf(seconds, 3 /*min width*/, 1 /*decimal precision*/, buffer);
   return buffer;
 }
+
+/**
+ * Prints RAM-based text centered on a specific LCD row
+ * 
+ * @param text The text to display (char*)
+ * @param row The row on which to display the text
+ */
+ void printCentered(const char* text, int row) {
+  int len = strlen(text);
+  int centerPos = max(0, floor((SELECTED_LCD_LAYOUT::LCD_COLS - len) / 2));
+  lcd.setCursor(centerPos, row);
+  lcd.print(text);
+}
+
+/**
+ * Prints Flash-based text centered on a specific LCD row
+ * 
+ * @param text The text to display (F() macro/__FlashStringHelper*)
+ * @param row The row on which to display the text
+ */
+void printCentered(const __FlashStringHelper* text, int row) {
+  // Use PGM_P which is a pointer to a string in program memory
+  PGM_P p = reinterpret_cast<PGM_P>(text);
+  int len = 0;
+  
+  // Count characters in Flash string
+  while (pgm_read_byte(p + len) != 0) {
+    len++;
+  }
+  
+  int centerPos = max(0, floor((SELECTED_LCD_LAYOUT::LCD_COLS - len) / 2));
+  lcd.setCursor(centerPos, row);
+  lcd.print(text);  // The LiquidCrystal library's print() can handle __FlashStringHelper
+}
+
 /**
  * @brief Displays the splash screen for the Darkroom Exposure Timer.
  * 
@@ -274,26 +309,25 @@ void displayStaticText() {
 void displaySplashScreen() { 
     lcd.clear();
     uint8_t len = strlen_P(SplashScreen::LINE_ONE_TEXT);
-    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_ONE);
-    lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_ONE_TEXT));
+    printCentered(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_ONE_TEXT),SELECTED_LCD_LAYOUT::LCD_ROW_ONE);
     len = strlen_P(SplashScreen::LINE_TWO_TEXT);
-    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_TWO);
-    lcd.print(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_TWO_TEXT));
+    printCentered(reinterpret_cast<const __FlashStringHelper*>(SplashScreen::LINE_TWO_TEXT), SELECTED_LCD_LAYOUT::LCD_ROW_TWO);
 
+    char buffer[SELECTED_LCD_LAYOUT::LCD_COLS + 1];
+    snprintf(buffer, sizeof(buffer), "Last Delay: %ss", getFormattedTime());
+    
     // Display the last stored delay on one line
-    lcd.setCursor(SELECTED_LCD_LAYOUT::LAST_DELAY_COL, SELECTED_LCD_LAYOUT::LCD_ROW_THREE); // Adjust for proper alignment
-    lcd.print(F("Last Delay: "));
-    lcd.print(getFormattedTime());
-    lcd.print(F("s"));
+    printCentered(buffer, SELECTED_LCD_LAYOUT::LCD_ROW_THREE);
 
-    int freeRamText = freeRam();
-    size_t bufferSize = snprintf(NULL, 0, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText)+1; // passing NULL as a first argument to snprintf returns a size the buffer needed to store the string.
-    char  *buffer = (char*)malloc(bufferSize);
-    snprintf(buffer, bufferSize, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText);
-    len = strlen(buffer);
-    lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
-    lcd.print(buffer);
-    free(buffer);
+  #ifdef DEBUG
+  // In debug mode, include free RAM information
+    int freeRamValue = freeRam();
+    snprintf(buffer, sizeof(buffer), "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamValue);
+  #else
+    // In production, only show version
+    snprintf(buffer, sizeof(buffer), "v%d.%d", BUILD_VERSION, REVISION_NUMBER);
+  #endif
+  printCentered(buffer, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR);
     delay(5000); // Adjust delay for better readability. 5 sec seems long enough
     lcd.clear();
 }

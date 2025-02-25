@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 5:26:05 pm
+ * Last Modified: Tuesday, 25th February 2025 10:39:03 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -32,26 +32,65 @@
  *
  * @return the number of free bytes in RAM
  */
- int freeRam()
- {
-   extern char __bss_end;
-   extern char *__brkval;
- 
-   int free_memory;
-   if (reinterpret_cast<int>(__brkval) == 0)
-   {
-     // If heap is not being used, free memory is the space between the end of the static data
-     // and the start of the stack
-     free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(&__bss_end);
-   }
-   else
-   {
-     // If heap is being used, free memory is the space between the end of the heap and the start of the stack
-     free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(__brkval);
-   }
- 
-   return free_memory;
- }
+ /**
+ * Get available RAM across different microcontroller architectures
+ * Compatible with: AVR (ATmega), ESP8266, ESP32, and other Arduino-compatible boards
+ * 
+ * @return  Available RAM in bytes
+ */
+int freeRam() {
+  #if defined(ESP8266)
+    // ESP8266 implementation
+    return ESP.getFreeHeap();
+    
+  #elif defined(ESP32)
+    // ESP32 implementation
+    return ESP.getFreeHeap();
+    
+  #elif defined(__AVR__)
+    // Original ATmega implementation
+    extern char __bss_end;
+    extern char *__brkval;
+  
+    int free_memory;
+    if (reinterpret_cast<int>(__brkval) == 0) {
+      // If heap is not being used, free memory is the space between the end of the static data
+      // and the start of the stack
+      free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(&__bss_end);
+    } else {
+      // If heap is being used, free memory is the space between the end of the heap and the start of the stack
+      free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(__brkval);
+    }
+  
+    return free_memory;
+    
+  #else
+    // Generic implementation for other boards (may not be accurate)
+    #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
+      // For ARM-based boards (Due, Zero, etc.)
+      return getFreeRam();
+    #else
+      // Fallback method using mallinfo if available
+      #if defined(HAVE_MALLOC_H) && defined(HAVE_MALLINFO)
+        struct mallinfo mi = mallinfo();
+        return mi.fordblks;
+      #else
+        // Last resort: a fixed value to indicate unsupported platform
+        return -1;
+      #endif
+    #endif
+  #endif
+}
+
+#if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
+/**
+ * Helper function for ARM-based Arduino boards
+ */
+static int getFreeRam() {
+  char top;
+  return &top - reinterpret_cast<char*>(sbrk(0));
+}
+#endif
  
  /**
  * @brief Gets the next EEPROM address for wear leveling.
