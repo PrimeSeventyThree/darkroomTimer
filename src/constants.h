@@ -167,4 +167,4 @@ namespace SplashScreen {
 }
 // --- Build Information ---
 const uint8_t BUILD_VERSION PROGMEM =2.0;
-const uint8_t REVISION_NUMBER PROGMEM =66;
+const uint8_t REVISION_NUMBER PROGMEM =67;
