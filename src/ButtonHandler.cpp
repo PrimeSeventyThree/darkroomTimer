@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 5:29:16 pm
+ * Last Modified: Tuesday, 25th February 2025 10:23:08 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -153,7 +153,7 @@ void processButtonRelease() {
     }
     storedTimerDelay = timerDelay;
     turnOnEnlargerLamp = true;
-    time = micros();
+    globalTime = micros();
 
     unsigned long elapsedTime = currentMillis - timerButtonState.pressStartTime;
     timerButtonState.buttonIsPressed = false;

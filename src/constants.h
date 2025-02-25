@@ -4,7 +4,7 @@
  * File Created: Tuesday, 18th February 2025 12:03:37 am
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 1:04:19 pm
+ * Last Modified: Tuesday, 25th February 2025 10:24:38 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -134,7 +134,7 @@ constexpr uint8_t I2C_ADDRESS = 0x27;              // I2C address of the LCD mod
 extern LiquidCrystal_I2C lcd; 
 
 // --- Global Variables ---
-extern unsigned long time;
+extern unsigned long globalTime;
 
 extern volatile bool startExposure;
 extern volatile bool turnOnEnlargerLamp;         // Flag for automatic lamp control
@@ -167,4 +167,4 @@ namespace SplashScreen {
 }
 // --- Build Information ---
 const uint8_t BUILD_VERSION PROGMEM =2.0;
-const uint8_t REVISION_NUMBER PROGMEM =67;
+const uint8_t REVISION_NUMBER PROGMEM =68;

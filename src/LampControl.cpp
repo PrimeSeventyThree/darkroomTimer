@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 2:14:55 pm
+ * Last Modified: Tuesday, 25th February 2025 10:25:56 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -76,9 +76,9 @@ void handleEnlargerLamp() {
 
     // Check if the exposure timer has reached its TimerConfig::DURATION
     unsigned long currentTime = micros();
-    if ((currentTime - time) >= TimerConfig::DURATION) {
+    if ((currentTime - globalTime) >= TimerConfig::DURATION) {
         // Reset the timer if micros() has rolled over
-        time = (currentTime < time) ? currentTime : time + TimerConfig::DURATION;
+        globalTime = (currentTime < globalTime) ? currentTime : globalTime + TimerConfig::DURATION;
 
         // Decrease the timer delay
         if (timerDelay > TimerConfig::INCREMENT) {

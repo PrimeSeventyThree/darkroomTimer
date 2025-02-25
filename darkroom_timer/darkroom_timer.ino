@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 2:37:32 pm
+ * Last Modified: Tuesday, 25th February 2025 11:33:59 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -53,6 +53,7 @@
 #include "src/LCDHandler.h"
 #include "src/LampControl.h"
 
+#define SERIAL_BAUD 115200
 /**
  * @brief Initializes the system components and prepares the environment.
  * 
@@ -62,9 +63,9 @@
  */
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);
   while (!Serial)
-  time = micros();
+  globalTime = micros();
     ; // Waiting for Serial Monitor
   randomSeed(analogRead(0));
   initializeButtons();
