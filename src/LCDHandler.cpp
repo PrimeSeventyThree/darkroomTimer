@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 12:41:10 am
+ * Last Modified: Tuesday, 25th February 2025 10:34:18 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -164,7 +164,7 @@ void printSpecialChar(char charType, uint8_t leftAdjust) {
  * @param digit The digit (0-9) to display
  * @param erase Whether to erase instead of draw the digit
  */
- void drawOrEraseBigDigit(uint8_t position, uint8_t digit, bool erase = false) {
+ void drawOrEraseBigDigit(uint8_t position, uint8_t digit, bool erase) {
   // Skip validation when erasing or for valid digits
   if (!erase && digit > 9) return;
   
@@ -288,7 +288,7 @@ void displaySplashScreen() {
 
     int freeRamText = freeRam();
     size_t bufferSize = snprintf(NULL, 0, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText)+1; // passing NULL as a first argument to snprintf returns a size the buffer needed to store the string.
-    char  *buffer = malloc(bufferSize);
+    char  *buffer = (char*)malloc(bufferSize);
     snprintf(buffer, bufferSize, "v%d.%d %dB", BUILD_VERSION, REVISION_NUMBER, freeRamText);
     len = strlen(buffer);
     lcd.setCursor(floor((SELECTED_LCD_LAYOUT::LCD_COLS-len)/2), SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); // Position for version and memory info
