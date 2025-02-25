@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Monday, 24th February 2025 5:35:32 pm
+ * Last Modified: Tuesday, 25th February 2025 12:28:35 am
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -109,55 +109,88 @@ const uint8_t bigNumbers[][30] PROGMEM = { // organized by row
 extern LiquidCrystal_I2C lcd;
 
 /**
- * @brief Prints a colon  ( : ) on an LCD screen.
+ * @brief Prints a special character on an LCD screen.
  *
- * @param leftAdjust A left adjustment of a colon.
+ * @param charType The type of character to print (':', '.', etc.)
+ * @param leftAdjust A left adjustment of the character.
  */
-void printColon(uint8_t leftAdjust) {
+ /**
+ * @brief Prints a special character on an LCD screen.
+ *
+ * @param charType The type of character to print (':', '.', etc.)
+ * @param leftAdjust A left adjustment of the character.
+ */
+void printSpecialChar(char charType, uint8_t leftAdjust) {
+  // Define patterns for different special characters
+  // Each array represents which rows should have a dot for the character
+  const bool colonPattern[4] = {false, true, true, false}; // Colon pattern
+  const bool dotPattern[4] = {false, false, false, true};  // Dot pattern
+  
+  // Select the appropriate pattern based on character type
+  const bool* pattern = NULL;
+  
+  switch (charType) {
+    case ':':
+      pattern = colonPattern;
+      break;
+    case '.':
+      pattern = dotPattern;
+      break;
+    // Add more cases here for future special characters
+    // case 'x':
+    //   pattern = xPattern;
+    //   break;
+    default:
+      // Default to empty pattern if character not recognized
+      static const bool emptyPattern[4] = {false, false, false, false};
+      pattern = emptyPattern;
+      break;
+  }
+  
+  // Print the character based on the selected pattern
   for (uint8_t row = 0; row < 4; row++) {
     lcd.setCursor(leftAdjust, row);
-    lcd.print((row == 1 || row == 2) ? F(".") : F(" "));
+    lcd.print(pattern[row] ? F(".") : F(" "));
   }
 }
 
 /**
- * @brief Prints a dot on an LCD screen.
- *
- * @param leftAdjust A left adjustment of a dot.
- */
-void printDot(uint8_t leftAdjust) {
-  for (uint8_t row = 0; row < 4; row++) {
-    lcd.setCursor(leftAdjust, row);
-    lcd.print((row == 3) ? F(".") : F(" "));
-  }
-}
-
-/**
- * @brief Displays a large representation of a digit on the LCD screen.
+ * @brief Draws or erases a big digit on the LCD with optimized memory access.
  * 
  * This function renders a specified digit (0-9) as a large character
  * on the LCD, starting at the given column position. It ensures the
  * digit is valid and uses custom characters to create the display.
  * 
- * @param digit The digit to display, ranging from 0 to 9.
- * @param position The starting column position on the LCD for the digit.
+ * @param position The column position on the LCD to start drawing
+ * @param digit The digit (0-9) to display
+ * @param erase Whether to erase instead of draw the digit
  */
-void drawOrEraseBigDigit(uint8_t position, uint8_t digit = 0, bool erase = false) {
-    if (digit > 9) return; // Ensure the digit is valid
-
-    // Iterate over each row of the big digit
-    for (uint8_t row = 0; row < 4; ++row) {
-        lcd.setCursor(position, row); // Set cursor to the appropriate position
-        if(erase) {
-          lcd.print(F("   ")); // Print three spaces (erase a row) in one call
-        } else {
-          // Write the corresponding custom characters to the LCD
+ void drawOrEraseBigDigit(uint8_t position, uint8_t digit, bool erase = false) {
+  // Skip validation when erasing or for valid digits
+  if (!erase && digit > 9) return;
+  
+  // Calculate base offset for the digit in bigNumbers array
+  const uint8_t digitOffset = digit * 3;
+  
+  // Process each row
+  for (uint8_t row = 0; row < 4; ++row) {
+      // Position cursor only once per row
+      lcd.setCursor(position, row);
+      
+      if (erase) {
+          // Erase the entire row with one operation
+          lcd.print(F("   "));
+      } else {
+          // Get pointer to row data for this digit in program memory
+          const uint8_t* rowPtr = &bigNumbers[row][digitOffset];
+          
+          // Efficient single-loop character writing with direct pgm_read
           for (uint8_t col = 0; col < 3; ++col) {
-              uint8_t charIndex = pgm_read_byte(&bigNumbers[row][digit * 3 + col]);
+              uint8_t charIndex = pgm_read_byte(&rowPtr[col]);
               lcd.write(charIndex);
-        }
+          }
       }
-    }
+  }
 }
 
 /**
@@ -203,9 +236,9 @@ void initializeLCD() {
  * 
  */
 void displayStaticText() {
-      printDot(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_DOT_POSITION);
-    lcd.setCursor(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_SEC_TEXT_POSITION, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); //cursor is in the last 4x20 LCD row 
-    lcd.print(F("SEC"));
+  printSpecialChar('.',SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_DOT_POSITION);
+  lcd.setCursor(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::STATIC_SEC_TEXT_POSITION, SELECTED_LCD_LAYOUT::LCD_ROW_FOUR); //cursor is in the last 4x20 LCD row 
+  lcd.print(F("SEC"));
 }
 
 /**
@@ -217,11 +250,11 @@ void displayStaticText() {
  * 
  * @return A formatted string representing the time in seconds.
  */
-String getFormattedTime() {
- float seconds = storedTimerDelay / 1000.0;
-  char buffer[8];
+ char* getFormattedTime() {
+  static char buffer[8]; // Static ensures the buffer persists after the function returns
+  float seconds = storedTimerDelay / 1000.0;
   dtostrf(seconds, 3 /*min width*/, 1 /*decimal precision*/, buffer);
-  return String(buffer);
+  return buffer;
 }
 /**
  * @brief Displays the splash screen for the Darkroom Exposure Timer.
@@ -267,46 +300,75 @@ void displaySplashScreen() {
 }
 
 /**
- * @brief Updates the timer display on the LCD by calculating and displaying the 
- * digits representing the remaining time. The function calculates the 
- * tens, ones, and tenths place digits from the timer delay and updates 
- * the display only if the seconds remaining have changed. It uses 
- * `drawOrEraseBigDigit` to display big digits.
+ * @brief Updates the timer display on the LCD with optimized rendering.
+ * 
+ * Calculates digit values and renders them with leading zero suppression.
+ * Only updates when the displayed time has changed to minimize LCD operations.
  */
-void updateTimerDisplay() {
-    // Calculate digits
-    uint8_t se = timerDelay / 100; // Seconds remaining
-    uint8_t thirdDigit = timerDelay / 10000;                             // 10s place
-    uint8_t secondDigit = (timerDelay % 10000) / 1000;                  // 1s place
-    uint8_t firstDigit = (timerDelay % 1000) / TimerConfig::INCREMENT;               // 0.1s place
+ void updateTimerDisplay() {
+  // Constants for display management
+  constexpr uint8_t EMPTY_DIGIT = 0xFF;
+  
+  // Calculate time value in deciseconds (0.1s)
+  uint16_t deciseconds = timerDelay / 100;
+  
+  // Only update if the displayed time has changed
+  static uint16_t previousDeciseconds = UINT16_MAX;
 
-    // Update only if seconds remaining have changed
-    static uint8_t previousSe = 255, previousThirdDigit = 255, previousSecondDigit = 255, previousFirstDigit = 255;
-
-    if (se != previousSe) {
-        // Update third digit
-        if (thirdDigit != 0) {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, thirdDigit);
-        } else {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET, thirdDigit, true);
-        }
-
-        // Update second digit
-        if (secondDigit != 0 || thirdDigit != 0) {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, secondDigit);
-        } else {
-          drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET, secondDigit, true);
-        }
-
-        // Update first digit
-        drawOrEraseBigDigit(SELECTED_LCD_LAYOUT::LCD_OFFSET + SELECTED_LCD_LAYOUT::FIRST_BIG_DIGIT_OFFSET, firstDigit);
-
-        // Update previous values
-        previousSe = se;
-        previousThirdDigit = thirdDigit;
-        previousSecondDigit = secondDigit;
-        previousFirstDigit = firstDigit;
-    }
+  // Get positions from layout constants
+  const uint8_t positions[3] = {
+    SELECTED_LCD_LAYOUT::FIRST_BIG_DIGIT_OFFSET,
+    SELECTED_LCD_LAYOUT::SECOND_BIG_DIGIT_OFFSET,
+    SELECTED_LCD_LAYOUT::THIRD_BIG_DIGIT_OFFSET
+  };
+  
+  if (deciseconds != previousDeciseconds) {
+      DEBUG_PRINTF("Updating display for %d.%ds\n", deciseconds/10, deciseconds%10);
+      
+      // Extract individual digits (more efficiently)
+      uint8_t firstDigit = deciseconds % 10;                // 0.1s place
+      uint8_t secondDigit = (deciseconds / 10) % 10;        // 1s place
+      uint8_t thirdDigit = deciseconds / 100;               // 10s place
+      
+      // Store current digit values to track when a redraw is needed
+      static uint8_t displayedDigits[3] = {EMPTY_DIGIT, EMPTY_DIGIT, EMPTY_DIGIT};
+      
+      // Create a local digit array for current values
+      uint8_t digits[3] = {firstDigit, secondDigit, thirdDigit};
+      
+      // Handle leading zeros and update each digit position
+      bool isLeadingZero = true;
+      
+      // Process digits from most to least significant (right to left on display)
+      for (int8_t i = 2; i >= 0; i--) {
+          // Determine if this is a leading zero (except for the least significant digit)
+          bool shouldErase = (isLeadingZero && digits[i] == 0 && i > 0);
+          
+          // Only redraw if the digit value or visibility has changed
+          bool digitChanged = (digits[i] != displayedDigits[i]);
+          bool wasBlank = (displayedDigits[i] == EMPTY_DIGIT); // Using EMPTY_DIGIT (0xFF) as a marker for blank
+          
+          if (digitChanged || (shouldErase && !wasBlank) || (!shouldErase && wasBlank)) {
+              // Draw or erase this digit
+              drawOrEraseBigDigit(
+                  SELECTED_LCD_LAYOUT::LCD_OFFSET + positions[i],
+                  digits[i],
+                  shouldErase
+              );
+              
+              // Update displayed digit tracking
+              displayedDigits[i] = shouldErase ? 0xFF : digits[i];
+          }
+          
+          // Once we hit a non-zero digit, stop suppressing zeros
+          if (digits[i] != 0) {
+              isLeadingZero = false;
+          }
+      }
+      
+      // Store current time for next comparison
+      previousDeciseconds = deciseconds;
+  }
 }
 
 /**
