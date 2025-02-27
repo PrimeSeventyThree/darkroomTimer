@@ -4,7 +4,7 @@
  * File Created: Wednesday, 26th February 2025 8:32:50 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 26th February 2025 8:51:35 pm
+ * Last Modified: Wednesday, 26th February 2025 9:05:18 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -114,8 +114,6 @@ extern unsigned long lastEEPROMWrite;  // Tracks the last EEPROM write time
 extern int eeAddress;             // EEPROM address to store timer delay
 
 // EEPROM Wear Leveling Configuration
-constexpr long EEPROM_MAGIC = 0xDEADBEEF;
-constexpr int MAGIC_ADDRESS = 0; // Reserve the first few bytes for the magic number.
 constexpr uint8_t EEPROM_INIT_VALUE = -1; //A default value we use to initialize EEPROM
 constexpr int ADDRESS_TRACKER_ADDRESS = 4; // location of the address tracker address
 
