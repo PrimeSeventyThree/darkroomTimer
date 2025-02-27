@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 9:22:34 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 10:39:03 am
+ * Last Modified: Wednesday, 26th February 2025 8:54:47 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -26,142 +26,148 @@
  #include "MemoryUtils.h"
  #include "constants.h"
  #include "LCDHandler.h"
-
-/**
- * @brief Returns the number of bytes currently free in RAM.
- *
- * @return the number of free bytes in RAM
- */
- /**
- * Get available RAM across different microcontroller architectures
- * Compatible with: AVR (ATmega), ESP8266, ESP32, and other Arduino-compatible boards
- * 
- * @return  Available RAM in bytes
- */
-int freeRam() {
-  #if defined(ESP8266)
-    // ESP8266 implementation
-    return ESP.getFreeHeap();
-    
-  #elif defined(ESP32)
-    // ESP32 implementation
-    return ESP.getFreeHeap();
-    
-  #elif defined(__AVR__)
-    // Original ATmega implementation
-    extern char __bss_end;
-    extern char *__brkval;
-  
-    int free_memory;
-    if (reinterpret_cast<int>(__brkval) == 0) {
-      // If heap is not being used, free memory is the space between the end of the static data
-      // and the start of the stack
-      free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(&__bss_end);
-    } else {
-      // If heap is being used, free memory is the space between the end of the heap and the start of the stack
-      free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(__brkval);
-    }
-  
-    return free_memory;
-    
-  #else
-    // Generic implementation for other boards (may not be accurate)
-    #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
-      // For ARM-based boards (Due, Zero, etc.)
-      return getFreeRam();
-    #else
-      // Fallback method using mallinfo if available
-      #if defined(HAVE_MALLOC_H) && defined(HAVE_MALLINFO)
-        struct mallinfo mi = mallinfo();
-        return mi.fordblks;
-      #else
-        // Last resort: a fixed value to indicate unsupported platform
-        return -1;
-      #endif
-    #endif
-  #endif
-}
-
-#if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
-/**
- * Helper function for ARM-based Arduino boards
- */
-static int getFreeRam() {
-  char top;
-  return &top - reinterpret_cast<char*>(sbrk(0));
-}
-#endif
+ 
+ // Constants (moved from constants.h for better encapsulation)
+ constexpr int MAX_RETRIES = 3;
+ 
+ // Global Variables (Internal to MemoryUtils.cpp - NOT in header file)
+ static int currentEEPROMAddress = EEPROM_START_ADDRESS; // Track current write address
  
  /**
- * @brief Gets the next EEPROM address for wear leveling.
+  * @brief Returns the number of bytes currently free in RAM.
+  *
+  * @return the number of free bytes in RAM
+  */
+ int freeRam() {
+ #if defined(ESP8266)
+     // ESP8266 implementation
+     return ESP.getFreeHeap();
+ 
+ #elif defined(ESP32)
+     // ESP32 implementation
+     return ESP.getFreeHeap();
+ 
+ #elif defined(__AVR__)
+     // Original ATmega implementation
+     extern char __bss_end;
+     extern char* __brkval;
+ 
+     int free_memory;
+     if (reinterpret_cast<int>(__brkval) == 0) {
+         // If heap is not being used, free memory is the space between the end of the static data
+         // and the start of the stack
+         free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(&__bss_end);
+     }
+     else {
+         // If heap is being used, free memory is the space between the end of the heap and the start of the stack
+         free_memory = reinterpret_cast<int>(&free_memory) - reinterpret_cast<int>(__brkval);
+     }
+ 
+     return free_memory;
+ 
+ #else
+     // Generic implementation for other boards (may not be accurate)
+ #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
+     // For ARM-based boards (Due, Zero, etc.)
+     return getFreeRam();
+ #else
+     // Fallback method using mallinfo if available
+ #if defined(HAVE_MALLOC_H) && defined(HAVE_MALLINFO)
+     struct mallinfo mi = mallinfo();
+     return mi.fordblks;
+ #else
+     // Last resort: a fixed value to indicate unsupported platform
+     return -1;
+ #endif
+ #endif
+ #endif
+ }
+ 
+ #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
+ /**
+  * Helper function for ARM-based Arduino boards
+  */
+ static int getFreeRam() {
+     char top;
+     return &top - reinterpret_cast<char*>(sbrk(0));
+ }
+ #endif
+ 
+ /**
+  * @brief Gets the next EEPROM address for wear leveling.
+  *
+  * This function increments the current EEPROM address index and wraps around
+  * to the start address when the end of the address range is reached.
+  *
+  * @return The next EEPROM address to use.
+  */
+ int getNextEEPROMAddress() {
+     int addressToUse = currentEEPROMAddress;
+     currentEEPROMAddress += sizeof(long); // Move to next address after the long value
+     if (currentEEPROMAddress > EEPROM_END_ADDRESS - sizeof(long)) { // important fix: subtract sizeof(long)
+         currentEEPROMAddress = EEPROM_START_ADDRESS; // Wrap around
+     }
+     return addressToUse;
+ }
+ 
+ /**
+ * @brief Writes a value to EEPROM with retry logic to handle bad blocks.
  *
- * This function increments the current EEPROM address index and wraps around
- * to the start address when the end of the address range is reached.
+ * This function attempts to write a value to the specified EEPROM address.
+ * If the write fails (value read back is incorrect), it increments the bad
+ * blocks count and returns false. The function also handles skipping bad
+ * blocks and displaying a warning message on the LCD if too many bad blocks
+ * are encountered.
  *
- * @return The next EEPROM address to use.
+ * @param address The EEPROM address to write to.
+ * @param value The value to write.
+ * @return True if the write was successful, false otherwise.
  */
-int getNextEEPROMAddress() {
-  // currentEEPROMAddressIndex = (currentEEPROMAddressIndex + 1) % EEPROM_ADDRESS_RANGE;
-  return EEPROM_START_ADDRESS;
-}
-
-/**
-* @brief Writes a value to EEPROM with retry logic to handle bad blocks.
-*
-* This function attempts to write a value to the specified EEPROM address.
-* If the write fails (value read back is incorrect), it increments the bad
-* blocks count and returns false. The function also handles skipping bad
-* blocks and displaying a warning message on the LCD if too many bad blocks
-* are encountered.
-*
-* @param address The EEPROM address to write to.
-* @param value The value to write.
-* @return True if the write was successful, false otherwise.
-*/
-bool writeEEPROMWithRetry(int address, long value) {
-  const int MAX_RETRIES = 3;
-  for (int retry = 0; retry < MAX_RETRIES; ++retry) {
-      EEPROM.put(address, value);
-      long readValue;
-      EEPROM.get(address, readValue);
-
-      if (readValue == value) {
-          return true; // Write successful
-      }
-      delay(10); // Small delay before retry
-  }
-
-  // Write failed after multiple retries
-  badBlocksCount++;
-  DEBUG_PRINTF("EEPROM write failed at address: %d", address);
-
-  if (badBlocksCount > MAX_BAD_BLOCKS) {
-    EEPROM_FAILED = true; //set the flag to display user a message
-  }
-  return false;
-}
-
-/**
-* @brief Reads a value to EEPROM with retry logic to handle bad blocks.
-*
-* This function attempts to read a value to the specified EEPROM address.
-* If the read fails (value read back is incorrect), it increments the bad
-* blocks count and returns false. The function also handles skipping bad
-* blocks and sets a flag to display a warning message on the LCD
-* if too many bad blocks are encountered.
-*
-* @param address The EEPROM address to read from.
-* @return timer delay stored in EEPROM, otherwise -1
-*/
-int readEEPROMWithRetry(int address) {
-  const int MAX_RETRIES = 3;
+ bool writeEEPROMWithRetry(int address, long value) {
+     for (int retry = 0; retry < MAX_RETRIES; ++retry) {
+         EEPROM.put(address, value);
+         long readValue;
+         EEPROM.get(address, readValue);
+ 
+         if (readValue == value) {
+             return true; // Write successful
+         }
+         delay(10); // Small delay before retry
+     }
+ 
+     // Write failed after multiple retries
+     badBlocksCount++;
+     DEBUG_PRINTF("EEPROM write failed at address: %d", address);
+ 
+     if (badBlocksCount > MAX_BAD_BLOCKS) {
+         EEPROM_FAILED = true; //set the flag to display user a message
+     }
+     return false;
+ }
+ 
+ /**
+ * @brief Reads a value to EEPROM with retry logic to handle bad blocks.
+ *
+ * This function attempts to read a value to the specified EEPROM address.
+ * If the read fails (value read back is incorrect), it increments the bad
+ * blocks count and returns false. The function also handles skipping bad
+ * blocks and sets a flag to display a warning message on the LCD
+ * if too many bad blocks are encountered.
+ *
+ * @param address The EEPROM address to read from.
+ * @return timer delay stored in EEPROM, otherwise -1
+ */
+ long readEEPROMWithRetry(int address) {
   for (int retry = 0; retry < MAX_RETRIES; ++retry) {
       long readValue;
       EEPROM.get(address, readValue);
-      if ((readValue >= 0 && readValue <= TimerConfig::MAX_DELAY) || readValue != EEPROM_INIT_VALUE) { // Check if the value is within the valid range and not the default value
-        DEBUG_PRINTF("Read timer delay %d from EEPROM at address: %d", readValue, address);
-        return readValue;
+
+      // First check that the data is in a valid timer range and also is not an uninitialized value.
+      if ((readValue >= 0 && readValue <= TimerConfig::MAX_DELAY) && (readValue != EEPROM_INIT_VALUE)) {
+          DEBUG_PRINTF("Read timer delay %ld from EEPROM at address: %d", readValue, address);
+          return readValue;
       }
+
       delay(10); // Small delay before retry
   }
 
@@ -170,29 +176,23 @@ int readEEPROMWithRetry(int address) {
   DEBUG_PRINTF("EEPROM read failed at address: %d", address);
 
   if (badBlocksCount > MAX_BAD_BLOCKS) {
-    EEPROM_FAILED = true; //set the flag to display user a message
+      EEPROM_FAILED = true; //set the flag to display user a message
   }
   return -1;
-}
-
-/**
- * @brief Initializes EEPROM if it hasn't been set up already.
- *
- * Checks for a magic number in EEPROM. If the magic number is missing or incorrect,
- * it writes default values for all settings and then writes the magic number.
- */
- void initializeEEPROM() {
-  long magicValue;
-  EEPROM.get(MAGIC_ADDRESS, magicValue);
-  
-  if (magicValue != EEPROM_MAGIC) {
-    for (int index = 0; index < EEPROM_ADDRESS_RANGE; index++) {
-      int currentEEPROMAddress = getNextEEPROMAddress();
-      writeEEPROMWithRetry(currentEEPROMAddress,EEPROM_INIT_VALUE);
-    }
-      // Write the magic number to mark EEPROM as initialized.
-      EEPROM.put(MAGIC_ADDRESS, EEPROM_MAGIC);
-  }
-}
-
-
+} 
+ 
+ /**
+  * @brief Retrieves the last used EEPROM address from EEPROM.
+  *
+  * If EEPROM is not initialized, it initializes it.
+  * If EEPROM is already initialized it retrieves last used address.
+  * It must be called at startup time from `setup()` function.
+  */
+ void restoreEEPROMAddress() {
+     EEPROM.get(ADDRESS_TRACKER_ADDRESS, currentEEPROMAddress);
+     if (currentEEPROMAddress < EEPROM_START_ADDRESS || currentEEPROMAddress > EEPROM_END_ADDRESS - sizeof(long)) {
+         DEBUG_PRINT("Invalid EEPROM address. Resetting");
+         currentEEPROMAddress = EEPROM_START_ADDRESS;
+     }
+     DEBUG_PRINTF("Restored last used address %d from EEPROM", currentEEPROMAddress);
+ }

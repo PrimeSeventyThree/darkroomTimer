@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 11:11:12 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 10:23:08 am
+ * Last Modified: Wednesday, 26th February 2025 8:53:49 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -38,19 +38,15 @@ ButtonState timerButtonState;
  * resistors. Retrieves the previously stored timer delay value from EEPROM
  * and assigns it to the timerDelay variable.
  */
-void initializeButtons() {
+ void initializeButtons() {
     pinMode(TIMER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
     // Restore stored timer delay from EEPROM
-    for (int index = 0; index < EEPROM_ADDRESS_RANGE; index++) {
-        int currentEEPROMAddress = getNextEEPROMAddress();
-        storedTimerDelay = readEEPROMWithRetry(currentEEPROMAddress);
-        DEBUG_PRINTF("Restored timer delay %d from EEPROM at %d address", storedTimerDelay, currentEEPROMAddress);
-        if (storedTimerDelay != -1) break;
-      }
+    
+    storedTimerDelay = readEEPROMWithRetry(EEPROM_START_ADDRESS); // reading from start address
+
     timerDelay = storedTimerDelay;
 }
-
 /**
  * @brief Debounces the button input to prevent false triggering due to noise.
  * 

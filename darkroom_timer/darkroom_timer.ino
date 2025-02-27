@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Tuesday, 25th February 2025 11:33:59 am
+ * Last Modified: Wednesday, 26th February 2025 8:53:07 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -46,12 +46,15 @@
  * License: MIT License
  */
 
-#include "src/DebugUtils.h" // Debug Utils
-#include "src/constants.h"
-#include "src/ButtonHandler.h"
-#include "src/encoderHandler.h"
-#include "src/LCDHandler.h"
-#include "src/LampControl.h"
+ #include "src/DebugUtils.h" // Debug Utils
+ #include "src/constants.h"
+ #include "src/ButtonHandler.h"
+ #include "src/encoderHandler.h"
+ #include "src/LCDHandler.h"
+ #include "src/LampControl.h"
+ #include "src/MemoryUtils.h"
+ 
+ #define SERIAL_BAUD 115200
 
 #define SERIAL_BAUD 115200
 /**
@@ -61,12 +64,9 @@
  * and initializes various hardware components such as the LCD, buttons, and encoder.
  * It also tests the LCD and enlarger lamp to ensure they are functioning correctly.
  */
-void setup()
-{
+ void setup() {
   Serial.begin(SERIAL_BAUD);
-  while (!Serial)
-  globalTime = micros();
-    ; // Waiting for Serial Monitor
+  while (!Serial);  // Waiting for Serial Monitor
   randomSeed(analogRead(0));
   initializeButtons();
   testLCD();
@@ -75,20 +75,22 @@ void setup()
   initializeEncoder();
   testEnlargerLamp();
   displayStaticText();
+  restoreEEPROMAddress(); // Restore address from EEPROM!
 }
 void loop() {
-    // Handle input from buttons and rotary encoder
-    inputHandler();
+  // Handle input from buttons and rotary encoder
+  inputHandler();
 
-    // Check if exposure is in progress
-    if (startExposure) {
-        handleEnlargerLamp(); // Manage relay operation during exposure
-    } else {
-        handleEncoderInput(); // Read rotary encoder input for timer adjustment
-    }
+  // Check if exposure is in progress
+  if (startExposure) {
+      handleEnlargerLamp(); // Manage relay operation during exposure
+  }
+  else {
+      handleEncoderInput(); // Read rotary encoder input for timer adjustment
+  }
 
-    // Update the big digit display on the LCD if timer value changes
-    updateTimerDisplay();
-    if (EEPROM_FAILED) displayEEPROMError();
+  // Update the big digit display on the LCD if timer value changes
+  updateTimerDisplay();
+  if (EEPROM_FAILED) displayEEPROMError();
 
 }
