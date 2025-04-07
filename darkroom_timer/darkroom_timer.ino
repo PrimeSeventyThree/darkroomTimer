@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Sunday, 6th April 2025 8:08:31 pm
+ * Last Modified: Monday, 7th April 2025 4:38:11 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -40,10 +40,6 @@
  * 
  * Debugging can be enabled by defining the DEBUG macro.
  * 
- * Author: Andrei Grichine
- * Date Created: December 2017
- * Last Modified: January 8, 2025
- * License: MIT License
  */
 
 #include "src/DebugUtils.h" // Debug Utils
