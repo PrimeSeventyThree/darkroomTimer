@@ -4,7 +4,7 @@
  * File Created: Monday, 17th February 2025 12:58:56 pm
  * Author: Andrei Grichine (andrei.grichine@gmail.com)
  * -----
- * Last Modified: Wednesday, 26th February 2025 8:53:07 pm
+ * Last Modified: Sunday, 6th April 2025 8:08:31 pm
  * Modified By: Andrei Grichine (andrei.grichine@gmail.com>)
  * -----
  * Copyright: 2019 - 2025. Prime73 Inc.
@@ -46,16 +46,14 @@
  * License: MIT License
  */
 
- #include "src/DebugUtils.h" // Debug Utils
- #include "src/constants.h"
- #include "src/ButtonHandler.h"
- #include "src/encoderHandler.h"
- #include "src/LCDHandler.h"
- #include "src/LampControl.h"
- #include "src/MemoryUtils.h"
+#include "src/DebugUtils.h" // Debug Utils
+#include "src/constants.h"
+#include "src/ButtonHandler.h"
+#include "src/encoderHandler.h"
+#include "src/LCDHandler.h"
+#include "src/LampControl.h"
+#include "src/MemoryUtils.h"
  
- #define SERIAL_BAUD 115200
-
 #define SERIAL_BAUD 115200
 /**
  * @brief Initializes the system components and prepares the environment.
@@ -64,7 +62,7 @@
  * and initializes various hardware components such as the LCD, buttons, and encoder.
  * It also tests the LCD and enlarger lamp to ensure they are functioning correctly.
  */
- void setup() {
+void setup() {
   Serial.begin(SERIAL_BAUD);
   while (!Serial);  // Waiting for Serial Monitor
   randomSeed(analogRead(0));
